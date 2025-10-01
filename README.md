@@ -1,5 +1,5 @@
 
-# Code2Video: Agentic Code-Centric Framework for Educational Video Generation
+# Code2Video: Code-centric Video Generation
 
 <!-- <p align="center">
   <img src="figures/logo.png" alt="Logo" width="30" style="vertical-align: middle; margin-right: 10px;"/>
