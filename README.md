@@ -6,9 +6,9 @@
   <span style="font-size: 1.8em; font-weight: bold;">Code2Video: Agentic Code-Centric Framework for Educational Video Generation</span>
 </p> -->
 
-<p align="center">
+<!-- <p align="center">
   <img src="figures/logo.png" alt="Logo" width="30"/>
-</p>
+</p> -->
 
 <!-- <p align="center">
   <img src="figures/logo.png" alt="Logo" width="30" style="vertical-align: middle; margin-right: 10px;"/>
