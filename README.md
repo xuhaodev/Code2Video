@@ -90,26 +90,7 @@ Fill in your **API credentials** in `gpt_config.json`.
 
 We provide two shell scripts for different generation modes:
 
-#### (a) Full Benchmark Mode
-
-Script: `run_agent.sh`
-
-Runs all (or a subset of) learning topics defined in `long_video_topics_list.json`.
-
-```bash
-sh run_agent.sh
-```
-
-**Important parameters inside `run_agent.sh`:**
-
-* `API`: specify which LLM to use.
-* `FOLDER_PREFIX`: name prefix for saving output folders (e.g., `TEST-LIST`).
-* `MAX_CONCEPTS`: number of concepts to include (`-1` means all).
-* `PARALLEL_GROUP_NUM`: number of groups to run in parallel.
-
----
-
-#### (b) Single Knowledge Point Mode
+#### (a) Any Query
 
 Script: `run_agent_single.sh`
 
@@ -126,6 +107,23 @@ sh run_agent_single.sh --knowledge_point "Linear transformations and matrices"
 * `KNOWLEDGE_POINT`: target concept, e.g. `"Linear transformations and matrices"`.
 
 ---
+
+#### (b) Full Benchmark Mode
+
+Script: `run_agent.sh`
+
+Runs all (or a subset of) learning topics defined in `long_video_topics_list.json`.
+
+```bash
+sh run_agent.sh
+```
+
+**Important parameters inside `run_agent.sh`:**
+
+* `API`: specify which LLM to use.
+* `FOLDER_PREFIX`: name prefix for saving output folders (e.g., `TEST-LIST`).
+* `MAX_CONCEPTS`: number of concepts to include (`-1` means all).
+* `PARALLEL_GROUP_NUM`: number of groups to run in parallel.
 
 ### 4. Project Organization
 
