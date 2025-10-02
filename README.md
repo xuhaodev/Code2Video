@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  <em>Generate Educational Video by Python manim code.</em>
+  <em>Generate Educational video by Python manim code.</em>
 </p>
 
 <!-- <p align="center">
