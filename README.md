@@ -1,5 +1,5 @@
 
-# Code2Video: Video Generation via Python Manim Code
+# Code2Video: Video Generation via Code
 
 <!-- <p align="center">
   <img src="figures/logo.png" alt="Logo" width="30" style="vertical-align: middle; margin-right: 10px;"/>
