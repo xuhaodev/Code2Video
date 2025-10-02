@@ -59,10 +59,10 @@
 ## 🌟 Demo
 
 <p align="center">
-  <video src="https://github.com/showlab/Code2Video/raw/main/assets/code2video-demo-s.mp4" width="90%" autoplay loop muted playsinline>
-    Your browser does not support the video tag.
-  </video>
+  <img src="https://github.com/showlab/Code2Video/raw/main/assets/code2video-demo.gif" alt="Code2Video Demo Animation" width="90%">
 </p>
+
+---
 
 ## 🌟 Overview
 
