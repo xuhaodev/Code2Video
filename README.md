@@ -1,5 +1,5 @@
 
-# Code2Video: Video Generation via Code
+# Code2Video
 
 <!-- <p align="center">
   <img src="figures/logo.png" alt="Logo" width="30" style="vertical-align: middle; margin-right: 10px;"/>
@@ -15,13 +15,13 @@
   <span style="font-size: 1.8em; font-weight: bold;"><em> From code to classroom-ready videos, powered by agents that teach.</em></span>
 </p> -->
 
-<p align="center">
-  <img src="https://github.com/showlab/Code2Video/raw/main/assets/code2video-demo.gif" alt="Code2Video Demo Animation" width="75%">
-</p>
+**TL;DR:** Generate educational video by Python manim code agent
 
-<p align="center">
-  <em>Generate Educational video by Python manim code.</em>
-</p>
+https://github.com/user-attachments/assets/d906423f-734a-41c9-b102-b113ad3b3c25
+
+<video src="assets/video.mp4" width="600" controls>
+  Your browser does not support the video tag.
+</video>
 
 <!-- <p align="center">
   <em>From code to classroom-ready videos, powered by agents that teach.</em>
