@@ -33,13 +33,36 @@
 
 
 <p align="center">
-  <a href="https://arxiv.org/abs/xxx">📄 Paper</a> &nbsp; | &nbsp;
-  <a href="https://huggingface.co/datasets/YanzheChen/MMMC">🤗 Dataset</a> &nbsp; | &nbsp;
-  <a href="https://chenanno.github.io/Code2Video/">🌐 Project Website</a> &nbsp; | &nbsp;
-  <a href="https://twitter.com/intent/tweet?text=Check%20out%20Code2Video!">💬 X (Twitter)</a>
+  <a href="https://arxiv.org/abs/xxx">📄 Paper</a> &nbsp; | &nbsp;
+  <a href="https://huggingface.co/papers/2510.01174">🤗 Daily Paper</a> &nbsp; | &nbsp;
+  <a href="https://huggingface.co/datasets/YanzheChen/MMMC">🤗 Dataset</a> &nbsp; | &nbsp;
+  <a href="https://chenanno.github.io/Code2Video/">🌐 Project Website</a> &nbsp; | &nbsp;
+  <a href="https://twitter.com/intent/tweet?text=Check%20out%20Code2Video!">💬 X (Twitter)</a>
 </p>
 
 ---
+
+### Table of Contents
+- [🌟 Demo](#-demo)
+- [🌟 Overview](#-overview)
+- [🚀 How to Create -- Code2Video](#-how-to-create---code2video)
+  - [1. Requirements](#1-requirements)
+  - [2. Configure LLM API Keys](#2-configure-llm-api-keys)
+  - [3. Run Agents](#3-run-agents)
+  - [4. Project Organization](#4-project-organization)
+- [📊 How to Evaluate -- MMMC](#-how-to-evaluate---mmmc)
+- [🙏 Acknowledgements](#-acknowledgements)
+- [📌 Citation](#-citation)
+
+---
+
+## 🌟 Demo
+
+<p align="center">
+  <video src="assets/code2video-demo-s.mp4" width="90%" autoplay loop muted playsinline>
+    Your browser does not support the video tag.
+  </video>
+</p>
 
 ## 🌟 Overview
 
@@ -189,17 +212,19 @@ We evaluate along **three complementary dimensions**:
 
 ---
 
-<!-- ## 📌 Citation
+## 📌 Citation
 
 If you find our work useful, please cite:
 
 ```bibtex
-@article{chen2025code2video,
-  title={Code2Video: Agentic Code-Centric Framework for Educational Video Generation},
-  author={Chen, Yanzhe and Lin, Qinghong and Shou, Mike Zheng},
-  journal={ICLR},
-  year={2026}
+@misc{chen2025code2videocodecentricparadigmeducational,
+      title={Code2Video: A Code-centric Paradigm for Educational Video Generation}, 
+      author={Yanzhe Chen and Kevin Qinghong Lin and Mike Zheng Shou},
+      year={2025},
+      eprint={2510.01174},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2510.01174}, 
 }
 ```
 
---- -->
