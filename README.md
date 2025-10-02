@@ -45,12 +45,12 @@
 ### Table of Contents
 - [🌟 Demo](#-demo)
 - [🌟 Overview](#-overview)
-- [🚀 How to Create -- Code2Video](#-how-to-create---code2video)
+- [🚀 How to Create -- Code2Video](#-how-to-create----code2video)
   - [1. Requirements](#1-requirements)
   - [2. Configure LLM API Keys](#2-configure-llm-api-keys)
   - [3. Run Agents](#3-run-agents)
   - [4. Project Organization](#4-project-organization)
-- [📊 How to Evaluate -- MMMC](#-how-to-evaluate---mmmc)
+- [📊 How to Evaluate -- MMMC](#-how-to-evaluate----mmmc)
 - [🙏 Acknowledgements](#-acknowledgements)
 - [📌 Citation](#-citation)
 
@@ -59,7 +59,7 @@
 ## 🌟 Demo
 
 <p align="center">
-  <video src="assets/code2video-demo-s.mp4" width="90%" autoplay loop muted playsinline>
+  <video src="https://github.com/showlab/Code2Video/raw/main/assets/code2video-demo-s.mp4" width="90%" autoplay loop muted playsinline>
     Your browser does not support the video tag.
   </video>
 </p>
