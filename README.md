@@ -16,6 +16,11 @@
 </p> -->
 
 <p align="center">
+  <img src="https://github.com/showlab/Code2Video/raw/main/assets/code2video-demo.gif" alt="Code2Video Demo Animation" width="75%">
+</p>
+
+
+<p align="center">
   <em>From code to classroom-ready videos, powered by agents that teach.</em>
 </p>
 
@@ -43,7 +48,6 @@
 ---
 
 ### Table of Contents
-- [🌟 Demo](#-demo)
 - [🌟 Overview](#-overview)
 - [🚀 How to Create -- Code2Video](#-how-to-create----code2video)
   - [1. Requirements](#1-requirements)
@@ -53,14 +57,6 @@
 - [📊 How to Evaluate -- MMMC](#-how-to-evaluate----mmmc)
 - [🙏 Acknowledgements](#-acknowledgements)
 - [📌 Citation](#-citation)
-
----
-
-## 🌟 Demo
-
-<p align="center">
-  <img src="https://github.com/showlab/Code2Video/raw/main/assets/code2video-demo.gif" alt="Code2Video Demo Animation" width="90%">
-</p>
 
 ---
 
