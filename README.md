@@ -152,7 +152,7 @@ sh run_agent.sh
 A suggested directory structure:
 
 ```
-Code2Video/
+src/
 │── agent.py
 │── run_agent.sh
 │── run_agent_single.sh
