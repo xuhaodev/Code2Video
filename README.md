@@ -36,7 +36,7 @@
   <a href="https://arxiv.org/abs/2510.01174">📄 Paper</a> &nbsp; | &nbsp;
   <a href="https://huggingface.co/papers/2510.01174">🤗 Daily Paper</a> &nbsp; | &nbsp;
   <a href="https://huggingface.co/datasets/YanzheChen/MMMC">🤗 Dataset</a> &nbsp; | &nbsp;
-  <a href="https://chenanno.github.io/Code2Video/">🌐 Project Website</a> &nbsp; | &nbsp;
+  <a href="https://showlab.github.io/Code2Video/">🌐 Project Website</a> &nbsp; | &nbsp;
   <a href="https://twitter.com/intent/tweet?text=Check%20out%20Code2Video!">💬 X (Twitter)</a>
 </p>
 
