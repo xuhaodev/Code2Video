@@ -216,7 +216,7 @@ We evaluate along **three complementary dimensions**:
 If you find our work useful, please cite:
 
 ```bibtex
-@misc{chen2025code2videocodecentricparadigmeducational,
+@misc{code2video,
       title={Code2Video: A Code-centric Paradigm for Educational Video Generation}, 
       author={Yanzhe Chen and Kevin Qinghong Lin and Mike Zheng Shou},
       year={2025},
