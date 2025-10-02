@@ -19,14 +19,17 @@
   <img src="https://github.com/showlab/Code2Video/raw/main/assets/code2video-demo.gif" alt="Code2Video Demo Animation" width="75%">
 </p>
 
-
 <p align="center">
+  <em>Generate Educational Video by Python manim code.</em>
+</p>
+
+<!-- <p align="center">
   <em>From code to classroom-ready videos, powered by agents that teach.</em>
 </p>
 
 <p align="center">
   <em>教学相长，代码为梁；知识作航，动画生光</em>
-</p>
+</p> -->
 
 
 <p align="center">
@@ -49,12 +52,12 @@
 
 ### Table of Contents
 - [🌟 Overview](#-overview)
-- [🚀 How to Create -- Code2Video](#-how-to-create----code2video)
+- [🚀 Quick Start: Code2Video](#-how-to-create----code2video)
   - [1. Requirements](#1-requirements)
   - [2. Configure LLM API Keys](#2-configure-llm-api-keys)
   - [3. Run Agents](#3-run-agents)
   - [4. Project Organization](#4-project-organization)
-- [📊 How to Evaluate -- MMMC](#-how-to-evaluate----mmmc)
+- [📊 Evaluation: MMMC](#-how-to-evaluate----mmmc)
 - [🙏 Acknowledgements](#-acknowledgements)
 - [📌 Citation](#-citation)
 
@@ -77,7 +80,7 @@ Unlike pixel-based text-to-video models, our approach leverages executable **Man
 
 ---
 
-## 🚀 How to Create -- Code2Video
+## 🚀 Try Code2Video
 
 <p align="center">
   <img src="figures/approach.png" alt="Approach" width="85%">
@@ -170,7 +173,7 @@ Code2Video/
 
 ---
 
-## 📊 How to Evaluate -- MMMC
+## 📊 Evaluation -- MMMC
 
 We evaluate along **three complementary dimensions**:
 
