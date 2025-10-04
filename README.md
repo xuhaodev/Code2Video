@@ -44,7 +44,7 @@
   <a href="https://huggingface.co/papers/2510.01174">🤗 Daily Paper</a> &nbsp; | &nbsp;
   <a href="https://huggingface.co/datasets/YanzheChen/MMMC">🤗 Dataset</a> &nbsp; | &nbsp;
   <a href="https://showlab.github.io/Code2Video/">🌐 Project Website</a> &nbsp; | &nbsp;
-  <a href="https://x.com/KevinQHLin/status/1973673721824190864">💬 X (Twitter)</a>
+  <a href="https://x.com/KevinQHLin/status/1974199353695941114">💬 X (Twitter)</a>
 </p>
 
 https://github.com/user-attachments/assets/d906423f-734a-41c9-b102-b113ad3b3c25
