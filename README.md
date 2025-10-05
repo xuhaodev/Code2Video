@@ -1,19 +1,7 @@
 
 # Code2Video: Video Generation via Code
 
-<!-- <p align="center">
-  <img src="figures/logo.png" alt="Logo" width="30" style="vertical-align: middle; margin-right: 10px;"/>
-  <span style="font-size: 1.8em; font-weight: bold;">Code2Video: Agentic Code-Centric Framework for Educational Video Generation</span>
-</p> -->
 
-<!-- <p align="center">
-  <img src="figures/logo.png" alt="Logo" width="30"/>
-</p> -->
-
-<!-- <p align="center">
-  <img src="figures/logo.png" alt="Logo" width="30" style="vertical-align: middle; margin-right: 10px;"/>
-  <span style="font-size: 1.8em; font-weight: bold;"><em> From code to classroom-ready videos, powered by agents that teach.</em></span>
-</p> -->
 
 <p align="center">
   <b>Code2Video: A Code-centric Paradigm for Educational Video Generation</b>
@@ -22,13 +10,9 @@
   Your browser does not support the video tag.
 </video>
 
-<!-- <p align="center">
-  <em>From code to classroom-ready videos, powered by agents that teach.</em>
-</p>
 
-<p align="center">
-  <em>教学相长，代码为梁；知识作航，动画生光</em>
-</p> -->
+
+
 
 
 <p align="center">
@@ -48,6 +32,58 @@
 </p>
 
 https://github.com/user-attachments/assets/d906423f-734a-41c9-b102-b113ad3b3c25
+
+
+<p align="center">
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center;">Learning Topic</th>
+      <th style="text-align: center;">Veo3</th>
+      <th style="text-align: center;">Wan2.2</th>
+      <th style="text-align: center;">Code2Video (Ours)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center; vertical-align: middle;"><strong>Hanoi Problem</strong></td>
+      <td style="text-align: center;">
+        <img src="assets/videos/veo/Hanoi.gif" style="height: 160px; width: auto;">
+      </td>
+      <td style="text-align: center;">
+        <img src="assets/videos/wan/Hanoi.gif" style="height: 160px; width: auto;">
+      </td>
+      <td style="text-align: center;">
+        <img src="assets/videos/code2video/Hanoi_4K_SpeedUp.gif" style="height: 160px; width: auto;">
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center; vertical-align: middle;"><strong>Large Language Model</strong></td>
+      <td style="text-align: center;">
+        <img src="assets/videos/veo/LLM.gif" style="height: 160px; width: auto;">
+      </td>
+      <td style="text-align: center;">
+        <img src="assets/videos/wan/LLM.gif" style="height: 160px; width: auto;">
+      </td>
+      <td style="text-align: center;">
+        <img src="assets/videos/code2video/LLM_speed.gif" style="height: 160px; width: auto;">
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center; vertical-align: middle;"><strong>Pure Fourier Series</strong></td>
+      <td style="text-align: center;">
+        <img src="assets/videos/veo/fourier.gif" style="height: 160px; width: auto;">
+      </td>
+      <td style="text-align: center;">
+        <img src="assets/videos/wan/fourier.gif" style="height: 160px; width: auto;">
+      </td>
+      <td style="text-align: center;">
+        <img src="assets/videos/code2video/fourier_speed.gif" style="height: 160px; width: auto;">
+      </td>
+    </tr>
+    </tbody>
+</table>
+</p>
 
 ---
 
