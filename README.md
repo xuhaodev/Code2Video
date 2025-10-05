@@ -98,25 +98,62 @@ https://github.com/user-attachments/assets/d906423f-734a-41c9-b102-b113ad3b3c25
   <tbody>
     <tr>
       <td style="text-align: center; vertical-align: middle; font-weight: bold;">Hanoi Problem</td>
-      <td><img src="assets/videos/veo/Hanoi.gif" style="height:180px; object-fit:contain;"></td>
-      <td><img src="assets/videos/wan/Hanoi.gif" style="height:180px; object-fit:contain;"></td>
-      <td><img src="assets/videos/code2video/Hanoi_4K_SpeedUp.gif" style="height:180px; object-fit:contain;"></td>
+      <td>
+        <div style="width: 320px; aspect-ratio: 16 / 9; overflow: hidden; margin: auto;">
+          <img src="assets/videos/veo/Hanoi.gif" style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+      </td>
+      <td>
+        <div style="width: 320px; aspect-ratio: 16 / 9; overflow: hidden; margin: auto;">
+          <img src="assets/videos/wan/Hanoi.gif" style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+      </td>
+      <td>
+        <div style="width: 320px; aspect-ratio: 16 / 9; overflow: hidden; margin: auto;">
+          <img src="assets/videos/code2video/Hanoi_4K_SpeedUp.gif" style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+      </td>
     </tr>
     <tr>
       <td style="text-align: center; vertical-align: middle; font-weight: bold;">Large Language Model</td>
-      <td><img src="assets/videos/veo/LLM.gif" style="height:180px; object-fit:contain;"></td>
-      <td><img src="assets/videos/wan/LLM.gif" style="height:180px; object-fit:contain;"></td>
-      <td><img src="assets/videos/code2video/LLM_speed.gif" style="height:180px; object-fit:contain;"></td>
+      <td>
+        <div style="width: 320px; aspect-ratio: 16 / 9; overflow: hidden; margin: auto;">
+          <img src="assets/videos/veo/LLM.gif" style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+      </td>
+      <td>
+        <div style="width: 320px; aspect-ratio: 16 / 9; overflow: hidden; margin: auto;">
+          <img src="assets/videos/wan/LLM.gif" style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+      </td>
+      <td>
+        <div style="width: 320px; aspect-ratio: 16 / 9; overflow: hidden; margin: auto;">
+          <img src="assets/videos/code2video/LLM_speed.gif" style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+      </td>
     </tr>
     <tr>
       <td style="text-align: center; vertical-align: middle; font-weight: bold;">Pure Fourier Series</td>
-      <td><img src="assets/videos/veo/fourier.gif" style="height:180px; object-fit:contain;"></td>
-      <td><img src="assets/videos/wan/fourier.gif" style="height:180px; object-fit:contain;"></td>
-      <td><img src="assets/videos/code2video/fourier_speed.gif" style="height:180px; object-fit:contain;"></td>
+      <td>
+        <div style="width: 320px; aspect-ratio: 16 / 9; overflow: hidden; margin: auto;">
+          <img src="assets/videos/veo/fourier.gif" style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+      </td>
+      <td>
+        <div style="width: 320px; aspect-ratio: 16 / 9; overflow: hidden; margin: auto;">
+          <img src="assets/videos/wan/fourier.gif" style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+      </td>
+      <td>
+        <div style="width: 320px; aspect-ratio: 16 / 9; overflow: hidden; margin: auto;">
+          <img src="assets/videos/code2video/fourier_speed.gif" style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+      </td>
     </tr>
   </tbody>
 </table>
 </p>
+
 
 
 
