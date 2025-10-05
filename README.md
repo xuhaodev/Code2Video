@@ -48,13 +48,13 @@ https://github.com/user-attachments/assets/d906423f-734a-41c9-b102-b113ad3b3c25
     <tr>
       <td style="text-align: center; vertical-align: middle;"><strong>Hanoi Problem</strong></td>
       <td style="text-align: center;">
-        <img src="assets/videos/veo/Hanoi.gif" style="height: 160px; width: auto;">
+        <img src="assets/videos/veo/Hanoi.gif">
       </td>
       <td style="text-align: center;">
-        <img src="assets/videos/wan/Hanoi.gif" style="height: 160px; width: auto;">
+        <img src="assets/videos/wan/Hanoi.gif">
       </td>
       <td style="text-align: center;">
-        <img src="assets/videos/code2video/Hanoi_4K_SpeedUp.gif" style="height: 160px; width: auto;">
+        <img src="assets/videos/code2video/Hanoi_4K_SpeedUp.gif">
       </td>
     </tr>
     <tr>
