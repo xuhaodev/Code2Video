@@ -34,7 +34,7 @@
 https://github.com/user-attachments/assets/d906423f-734a-41c9-b102-b113ad3b3c25
 
 
-<p align="center">
+<!-- <p align="center">
 <table>
   <thead>
     <tr>
@@ -55,6 +55,57 @@ https://github.com/user-attachments/assets/d906423f-734a-41c9-b102-b113ad3b3c25
       </td>
       <td style="text-align: center;">
         <img src="assets/videos/code2video/Hanoi_4K_SpeedUp.gif">
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center; vertical-align: middle;"><strong>Large Language Model</strong></td>
+      <td style="text-align: center;">
+        <img src="assets/videos/veo/LLM.gif" style="height: 160px; width: auto;">
+      </td>
+      <td style="text-align: center;">
+        <img src="assets/videos/wan/LLM.gif" style="height: 160px; width: auto;">
+      </td>
+      <td style="text-align: center;">
+        <img src="assets/videos/code2video/LLM_speed.gif" style="height: 160px; width: auto;">
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: center; vertical-align: middle;"><strong>Pure Fourier Series</strong></td>
+      <td style="text-align: center;">
+        <img src="assets/videos/veo/fourier.gif" style="height: 160px; width: auto;">
+      </td>
+      <td style="text-align: center;">
+        <img src="assets/videos/wan/fourier.gif" style="height: 160px; width: auto;">
+      </td>
+      <td style="text-align: center;">
+        <img src="assets/videos/code2video/fourier_speed.gif" style="height: 160px; width: auto;">
+      </td>
+    </tr>
+    </tbody>
+</table>
+</p> -->
+
+<p align="center">
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center;">Learning Topic</th>
+      <th style="text-align: center;">Veo3</th>
+      <th style="text-align: center;">Wan2.2</th>
+      <th style="text-align: center;">Code2Video (Ours)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center; vertical-align: middle;"><strong>Hanoi Problem</strong></td>
+      <td style="text-align: center;">
+        <img src="assets/videos/veo/Hanoi.gif" style="height: 160px; width: auto;">
+      </td>
+      <td style="text-align: center;">
+        <img src="assets/videos/wan/Hanoi.gif" style="height: 160px; width: auto;">
+      </td>
+      <td style="text-align: center;">
+        <img src="assets/videos/code2video/Hanoi_4K_SpeedUp.gif" style="height: 160px; width: auto;">
       </td>
     </tr>
     <tr>
