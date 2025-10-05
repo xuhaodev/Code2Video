@@ -90,6 +90,7 @@ Unlike pixel-based text-to-video models, our approach leverages executable **Man
 ### 1. Requirements
 
 ```bash
+cd src/
 pip install -r requirements.txt
 ````
 
