@@ -60,25 +60,25 @@ https://github.com/user-attachments/assets/d906423f-734a-41c9-b102-b113ad3b3c25
     <tr>
       <td style="text-align: center; vertical-align: middle;"><strong>Large Language Model</strong></td>
       <td style="text-align: center;">
-        <img src="assets/videos/veo/LLM.gif" style="height: 160px; width: auto;">
+        <img src="assets/videos/veo/LLM.gif">
       </td>
       <td style="text-align: center;">
-        <img src="assets/videos/wan/LLM.gif" style="height: 160px; width: auto;">
+        <img src="assets/videos/wan/LLM.gif">
       </td>
       <td style="text-align: center;">
-        <img src="assets/videos/code2video/LLM_speed.gif" style="height: 160px; width: auto;">
+        <img src="assets/videos/code2video/LLM_speed.gif">
       </td>
     </tr>
     <tr>
       <td style="text-align: center; vertical-align: middle;"><strong>Pure Fourier Series</strong></td>
       <td style="text-align: center;">
-        <img src="assets/videos/veo/fourier.gif" style="height: 160px; width: auto;">
+        <img src="assets/videos/veo/fourier.gif">
       </td>
       <td style="text-align: center;">
-        <img src="assets/videos/wan/fourier.gif" style="height: 160px; width: auto;">
+        <img src="assets/videos/wan/fourier.gif">
       </td>
       <td style="text-align: center;">
-        <img src="assets/videos/code2video/fourier_speed.gif" style="height: 160px; width: auto;">
+        <img src="assets/videos/code2video/fourier_speed.gif">
       </td>
     </tr>
     </tbody>
@@ -86,55 +86,40 @@ https://github.com/user-attachments/assets/d906423f-734a-41c9-b102-b113ad3b3c25
 </p> -->
 
 <p align="center">
-<table>
+<table style="width: 90%; border-collapse: collapse; text-align: center; margin: auto;">
   <thead>
     <tr>
-      <th style="text-align: center;">Learning Topic</th>
-      <th style="text-align: center;">Veo3</th>
-      <th style="text-align: center;">Wan2.2</th>
-      <th style="text-align: center;">Code2Video (Ours)</th>
+      <th style="text-align: center; padding: 8px;">Learning Topic</th>
+      <th style="text-align: center; padding: 8px;">Veo3</th>
+      <th style="text-align: center; padding: 8px;">Wan2.2</th>
+      <th style="text-align: center; padding: 8px;">Code2Video (Ours)</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td style="text-align: center; vertical-align: middle;"><strong>Hanoi Problem</strong></td>
-      <td style="text-align: center;">
-        <img src="assets/videos/veo/Hanoi.gif" style="height: 160px; width: auto;">
-      </td>
-      <td style="text-align: center;">
-        <img src="assets/videos/wan/Hanoi.gif" style="height: 160px; width: auto;">
-      </td>
-      <td style="text-align: center;">
-        <img src="assets/videos/code2video/Hanoi_4K_SpeedUp.gif" style="height: 160px; width: auto;">
-      </td>
+      <td style="text-align: center; vertical-align: middle; font-weight: bold;">Hanoi Problem</td>
+      <td><img src="assets/videos/veo/Hanoi.gif" style="height:180px; object-fit:contain;"></td>
+      <td><img src="assets/videos/wan/Hanoi.gif" style="height:180px; object-fit:contain;"></td>
+      <td><img src="assets/videos/code2video/Hanoi_4K_SpeedUp.gif" style="height:180px; object-fit:contain;"></td>
     </tr>
     <tr>
-      <td style="text-align: center; vertical-align: middle;"><strong>Large Language Model</strong></td>
-      <td style="text-align: center;">
-        <img src="assets/videos/veo/LLM.gif" style="height: 160px; width: auto;">
-      </td>
-      <td style="text-align: center;">
-        <img src="assets/videos/wan/LLM.gif" style="height: 160px; width: auto;">
-      </td>
-      <td style="text-align: center;">
-        <img src="assets/videos/code2video/LLM_speed.gif" style="height: 160px; width: auto;">
-      </td>
+      <td style="text-align: center; vertical-align: middle; font-weight: bold;">Large Language Model</td>
+      <td><img src="assets/videos/veo/LLM.gif" style="height:180px; object-fit:contain;"></td>
+      <td><img src="assets/videos/wan/LLM.gif" style="height:180px; object-fit:contain;"></td>
+      <td><img src="assets/videos/code2video/LLM_speed.gif" style="height:180px; object-fit:contain;"></td>
     </tr>
     <tr>
-      <td style="text-align: center; vertical-align: middle;"><strong>Pure Fourier Series</strong></td>
-      <td style="text-align: center;">
-        <img src="assets/videos/veo/fourier.gif" style="height: 160px; width: auto;">
-      </td>
-      <td style="text-align: center;">
-        <img src="assets/videos/wan/fourier.gif" style="height: 160px; width: auto;">
-      </td>
-      <td style="text-align: center;">
-        <img src="assets/videos/code2video/fourier_speed.gif" style="height: 160px; width: auto;">
-      </td>
+      <td style="text-align: center; vertical-align: middle; font-weight: bold;">Pure Fourier Series</td>
+      <td><img src="assets/videos/veo/fourier.gif" style="height:180px; object-fit:contain;"></td>
+      <td><img src="assets/videos/wan/fourier.gif" style="height:180px; object-fit:contain;"></td>
+      <td><img src="assets/videos/code2video/fourier_speed.gif" style="height:180px; object-fit:contain;"></td>
     </tr>
-    </tbody>
+  </tbody>
 </table>
 </p>
+
+
+
 
 ---
 
