@@ -34,6 +34,7 @@
 https://github.com/user-attachments/assets/d906423f-734a-41c9-b102-b113ad3b3c25
 
 
+
 <!-- <p align="center">
 <table>
   <thead>
@@ -154,8 +155,13 @@ https://github.com/user-attachments/assets/d906423f-734a-41c9-b102-b113ad3b3c25
 </table>
 </p>
 
+---
 
-
+## 🔥 Update
+- [x] [2025.10.6] We have updated the ground truth human-made videos and metadata for the [MMMC](https://huggingface.co/datasets/YanzheChen/MMMC) dataset.
+- [x] [2025.10.3] Thanks @_akhaliq for sharing our work on [Twitter](https://x.com/_akhaliq/status/1974189217304780863)!
+- [x] [2025.10.2] We release the [arXiv](https://arxiv.org/abs/2510.01174), [code](https://github.com/showlab/Code2Video) and [`dataset`](https://huggingface.co/datasets/YanzheChen/MMMC)
+- [x] [2025.9.22] Code2Video has been accepted to the **Deep Learning for Code ([DL4C](https://dl4c.github.io/)) Workshop at NeurIPS 2025**.
 
 
 ---
