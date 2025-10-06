@@ -162,12 +162,12 @@ https://github.com/user-attachments/assets/d906423f-734a-41c9-b102-b113ad3b3c25
 
 ### Table of Contents
 - [🌟 Overview](#-overview)
-- [🚀 Quick Start: Code2Video](#-how-to-create----code2video)
+- [🚀 Quick Start: Code2Video](#-try-code2video)
   - [1. Requirements](#1-requirements)
   - [2. Configure LLM API Keys](#2-configure-llm-api-keys)
   - [3. Run Agents](#3-run-agents)
   - [4. Project Organization](#4-project-organization)
-- [📊 Evaluation: MMMC](#-how-to-evaluate----mmmc)
+- [📊 Evaluation: MMMC](#-evaluation----mmmc)
 - [🙏 Acknowledgements](#-acknowledgements)
 - [📌 Citation](#-citation)
 
@@ -202,6 +202,8 @@ Unlike pixel-based text-to-video models, our approach leverages executable **Man
 cd src/
 pip install -r requirements.txt
 ````
+
+Here is the [official installation guide](https://docs.manim.community/en/stable/installation.html) for Manim Community v0.19.0, to help everyone correctly set up the environment.
 
 ### 2. Configure LLM API Keys
 
