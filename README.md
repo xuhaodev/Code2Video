@@ -213,7 +213,7 @@ Here is the [official installation guide](https://docs.manim.community/en/stable
 
 ### 2. Configure LLM API Keys
 
-Fill in your **API credentials** in `gpt_config.json`.
+Fill in your **API credentials** in `api_config.json`.
 
 * **LLM API**: 
   * Required for Planner & Coder.
