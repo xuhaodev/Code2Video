@@ -225,7 +225,7 @@ Fill in your **API credentials** in `api_config.json`.
 
 * **Visual Assets API**:
 
-  * To enrich videos with icons, set `ICONFINDER_API_KEY` from [IconFinder](https://www.iconfinder.com/account/applications) (First create an account, e.g. "Sign in with Google").
+  * To enrich videos with icons, set `ICONFINDER_API_KEY` from [IconFinder](https://www.iconfinder.com/account/applications).
 
 ### 3. Run Agents
 
