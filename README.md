@@ -7,7 +7,8 @@
 
 <p align="center">
   <b>Code2Video: A Code-centric Paradigm for Educational Video Generation</b>
-  <b>Code2Video: 以代码为中心的教学视频生成新范式</b>
+<br>
+以代码为中心的教学视频生成新范式
 </p>
 <video src="assets/video.mp4" width="600" controls>
   Your browser does not support the video tag.
