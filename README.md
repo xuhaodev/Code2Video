@@ -1,7 +1,9 @@
 
 # Code2Video: Video Generation via Code
 
-
+<p align="right">
+  <b>English</b> | <a href="./README.zh-CN.md">简体中文</a>
+</p>
 
 <p align="center">
   <b>Code2Video: A Code-centric Paradigm for Educational Video Generation</b>
