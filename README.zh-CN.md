@@ -30,7 +30,7 @@
 
 ---
 
-## 🔥 近期更新
+## 🔥 更新
 - [x] [2025.10.11] 近期收到关于 [ICONFINDER](https://www.iconfinder.com/account/applications) 注册问题的反馈，在 [MMMC](https://huggingface.co/datasets/YanzheChen/MMMC/tree/main/assets) 数据集中更新了 Code2Video 自动收集的 icon，作为临时替代方案。
 - [x] [2025.10.6] 更新了 [MMMC](https://huggingface.co/datasets/YanzheChen/MMMC) 数据集。
 - [x] [2025.10.3] 感谢 @_akhaliq 在 [推特](https://x.com/_akhaliq/status/1974189217304780863)上分享我们的工作！
