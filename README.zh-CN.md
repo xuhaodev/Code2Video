@@ -90,6 +90,7 @@ pip install -r requirements.txt
 * **LLM API**:
   * 运行 Planner 和 Coder 所需。
   * 使用 **Claude-4-Opus** 可获得最佳的 Manim 代码质量。
+  * 使用 **ChatGPT-4.1** 亦具有不错的生成表现。
 * **VLM API**:
   * 运行 Critic 所需。
   * 为优化布局和美学，请提供 **Gemini API key**。
