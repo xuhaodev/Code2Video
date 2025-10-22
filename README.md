@@ -315,7 +315,7 @@ We evaluate along **three complementary dimensions**:
    python3 eval_AES.py
    ```
 
-3. **Efficiency Metrics (During Creating)**
+3. **Efficiency Metrics (During Video Creating)**
 
    * Token usage
    * Execution time
