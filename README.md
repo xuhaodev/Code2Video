@@ -216,7 +216,7 @@ cd src/
 pip install -r requirements.txt
 ````
 
-Here is the [official installation guide](https://docs.manim.community/en/stable/installation.html) for Manim Community v0.19.0, to help everyone correctly set up the environment.
+Here is the [official installation guide](https://docs.manim.community/en/stable/installation.html) for [Manim Community v0.19.0](https://www.manim.community/), to help everyone correctly set up the environment.
 
 ### 2. Configure LLM API Keys
 
