@@ -329,7 +329,7 @@ We evaluate along **three complementary dimensions**:
 
 ## 🙏 Acknowledgements
 
-* Video data is sourced from the **[3Blue1Brown official lessons](https://www.3blue1brown.com/#lessons)**.
+* Video data is sourced from the **[3Blue1Brown official lessons](https://www.3blue1brown.com/#lessons)** and **[Grant Sanderson](https://x.com/3blue1brown)**.
   These videos represent the **upper bound of clarity and aesthetics** in educational video design and inform our evaluation metrics.
 * We thank all the **Show Lab @ NUS** members for support!
 * This project builds upon open-source contributions from **Manim Community** and the broader AI research ecosystem.
