@@ -19,6 +19,11 @@ MAX_FEEDBACK_GEN_CODE_TRIES=3
 MAX_MLLM_FIX_BUGS_TRIES=3
 FEEDBACK_ROUNDS=2
 
+# 视频配置
+# 竖屏模式: --portrait (默认)  横屏模式: --landscape
+# 视频质量: l(低480p), m(中720p), h(高1080p), k(4K)
+VIDEO_QUALITY="l"
+
 # 2) KNOWLEDGE_POINT
 # -------------------------------------------------------------
 
@@ -43,6 +48,8 @@ exec "$PY" "$ENTRY" \
   --max_feedback_gen_code_tries "$MAX_FEEDBACK_GEN_CODE_TRIES" \
   --max_mllm_fix_bugs_tries "$MAX_MLLM_FIX_BUGS_TRIES" \
   --feedback_rounds "$FEEDBACK_ROUNDS" \
+  --portrait \
+  --video_quality "$VIDEO_QUALITY" \
   --parallel \
   $KNOWLEDGE_POINT_ARGS \
   "$@"

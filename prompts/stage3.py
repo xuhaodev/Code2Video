@@ -57,29 +57,38 @@ Please generate a high-quality Manim class based on the following teaching scrip
 
 {timing_info}
 
+**【重要】竖屏模式 (Portrait Mode - 9:16 比例)**
+- 画布尺寸：1080x1920 像素，frame_width=9, frame_height=16
+- 布局采用上下结构：顶部标题区 → 中间动画区 → 底部讲解文字区
+- 所有元素必须考虑竖屏比例，避免左右过宽
+
 1. Basic Requirements:
 - Use the provided TeachingScene base class without modification.
 - Each lecture line must have a matching color with its corresponding animation elements.
 - Apply ONLY color changes to lecture lines - no scaling, translation, or Transform animations.
 
-2. Visual Anchor System (MANDATORY):
-- Use 6x6 grid system (A1-F6) for precise positioning.
+2. Visual Anchor System for Portrait Mode (MANDATORY):
+- Use 4x8 grid system (A1-D8) for precise positioning on portrait canvas.
 - Pay attention to the positioning of elements to avoid occlusions (e.g., labels and formulas).
 - All labels must be positioned within 1 grid unit of their corresponding objects
-- Grid layout (right side only):
+- Grid layout for portrait mode (vertical orientation):
 ```
-lecture |  A1  A2  A3  A4  A5  A6
-        |  B1  B2  B3  B4  B5  B6
-        |  C1  C2  C3  C4  C5  C6
-        |  D1  D2  D3  D4  D5  D6
-        |  E1  E2  E3  E4  E5  E6
-        |  F1  F2  F3  F4  F5  F6
+        |  A1  A2  A3  A4  |  ← Top (Title area)
+        |  B1  B2  B3  B4  |
+        |  C1  C2  C3  C4  |  ← Upper-middle (Main animation area)
+        |  D1  D2  D3  D4  |
+        |  E1  E2  E3  E4  |  ← Lower-middle (Secondary content)
+        |  F1  F2  F3  F4  |
+        |  G1  G2  G3  G4  |  ← Bottom (Lecture lines area)
+        |  H1  H2  H3  H4  |
 ```
+- Coordinate ranges: X: [-4.5, 4.5], Y: [-8, 8]
 
 3. POSITIONING METHODS:
-- Point example: self.place_at_grid(obj, 'B2', scale_factor=0.8)
-- Area example: self.place_in_area(obj, 'A1', 'C3', scale_factor=0.7)
+- Point example: self.place_at_grid(obj, 'C2', scale_factor=0.8)
+- Area example: self.place_in_area(obj, 'B1', 'E4', scale_factor=0.7)
 - NEVER use .to_edge(), .move_to(), or manual positioning!
+- For portrait mode: prefer vertical layouts, stack elements top-to-bottom
 
 4. TEACHING CONTENT:
 - Title: {section.title}

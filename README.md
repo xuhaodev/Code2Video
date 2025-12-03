@@ -164,6 +164,7 @@ https://github.com/user-attachments/assets/d906423f-734a-41c9-b102-b113ad3b3c25
 ## 🔥 Update
 **Any contributions are welcome!**
 
+- [x] [2025.12.03] Added **Portrait Mode** (9:16 aspect ratio) for mobile-friendly videos, **Azure OpenAI** (gpt-5.1) and **Azure AI Foundry Claude** support!
 - [x] [2025.11.25] Our Code2Video has reached 1000 stars!
 - [x] [2025.11.06] We optimized `requirements.txt`, which resulted in an 80-90% reduction in installation time. Thanks to [daxiongshu](https://github.com/daxiongshu)!
 - [x] [2025.10.11] Due to issues on [ICONFINDER](https://www.iconfinder.com/account/applications), we’ve updated Code2Video auto-collected icons at [MMMC](https://huggingface.co/datasets/YanzheChen/MMMC/tree/main/assets) as a temporary alternative.
@@ -222,18 +223,52 @@ Here is the [official installation guide](https://docs.manim.community/en/stable
 
 ### 2. Configure LLM API Keys
 
-Fill in your **API credentials** in `api_config.json`.
+Copy the sample config file and fill in your **API credentials**:
+
+```bash
+cp api_config.sample.json api_config.json
+```
+
+Edit `api_config.json` with your credentials:
+
+```json
+{
+    "gemini": {
+        "api_key": "YOUR_GEMINI_API_KEY",
+        "model": "gemini-2.5-flash"
+    },
+    "gpt51": {
+        "base_url": "YOUR_AZURE_OPENAI_ENDPOINT/openai/v1/",
+        "api_key": "YOUR_API_KEY",
+        "model": "gpt-5-mini"
+    },
+    "claude": {
+        "base_url": "YOUR_AZURE_AI_FOUNDRY_ENDPOINT/anthropic",
+        "api_key": "YOUR_API_KEY",
+        "model": "claude-opus-4-5"
+    },
+    "iconfinder": {
+        "api_key": "YOUR_ICONFINDER_KEY"
+    }
+}
+```
+
+**Supported API Providers:**
+
+| Provider | Config Key | Description |
+|----------|------------|-------------|
+| **Azure OpenAI** | `gpt51`, `gpt41`, `gpt4o` | Azure OpenAI Service endpoints |
+| **Azure AI Foundry (Claude)** | `claude` | Anthropic Claude via Azure AI Foundry |
+| **Google Gemini** | `gemini` | For VLM (Critic) - video analysis |
+| **IconFinder** | `iconfinder` | Visual assets API |
 
 * **LLM API**: 
   * Required for Planner & Coder.
-  * Best Manim code quality achieved with **Claude-4-Opus**.
+  * Best Manim code quality achieved with **Claude-4-Opus** or **gpt-5.1**.
 * **VLM API**:
-  * Required for Planner Critic.
-  * For layout and aesthetics optimization, provide **Gemini API key**.
-  * Best quality achieved with **gemini-2.5-pro-preview-05-06**.
-
+  * Required for Critic (video layout analysis).
+  * Provide **Gemini API key** for layout and aesthetics optimization.
 * **Visual Assets API**:
-
   * To enrich videos with icons, set `ICONFINDER_API_KEY` from [IconFinder](https://www.iconfinder.com/account/applications).
 
 ### 3. Run Agents
@@ -252,9 +287,43 @@ sh run_agent_single.sh --knowledge_point "Linear transformations and matrices"
 
 **Important parameters inside `run_agent_single.sh`:**
 
-* `API`: specify which LLM to use.
-* `FOLDER_PREFIX`: output folder prefix (e.g., `TEST-single`).
-* `KNOWLEDGE_POINT`: target concept, e.g. `"Linear transformations and matrices"`.
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `API` | LLM provider (`gpt51`, `claude`, `gpt41`, etc.) | `gpt-41` |
+| `FOLDER_PREFIX` | Output folder prefix | `TEST-single` |
+| `VIDEO_QUALITY` | Video quality: `l`(480p), `m`(720p), `h`(1080p), `k`(4K) | `l` |
+
+**Command-line options:**
+
+```bash
+# Generate portrait video (9:16 for mobile)
+sh run_agent_single.sh --knowledge_point "Pythagorean theorem" --portrait
+
+# Generate landscape video (16:9 traditional)
+sh run_agent_single.sh --knowledge_point "Pythagorean theorem" --landscape
+
+# High quality 1080p portrait video
+sh run_agent_single.sh --knowledge_point "Pythagorean theorem" --portrait --video_quality h
+
+# Use specific API
+sh run_agent_single.sh --knowledge_point "Linear algebra" --API claude
+```
+
+**Video Mode Options:**
+
+| Option | Aspect Ratio | Resolution | Use Case |
+|--------|--------------|------------|----------|
+| `--portrait` | 9:16 | 1080×1920 | Mobile/Short video platforms |
+| `--landscape` | 16:9 | 1920×1080 | Traditional video platforms |
+
+**Video Quality Options:**
+
+| Quality | Resolution (Landscape) | Resolution (Portrait) | FPS |
+|---------|------------------------|----------------------|-----|
+| `l` (low) | 854×480 | 1080×1920 | 15 |
+| `m` (medium) | 1280×720 | 1080×1920 | 30 |
+| `h` (high) | 1920×1080 | 1080×1920 | 60 |
+| `k` (4K) | 3840×2160 | 1080×1920 | 60 |
 
 ---
 
@@ -270,10 +339,32 @@ sh run_agent.sh
 
 **Important parameters inside `run_agent.sh`:**
 
-* `API`: specify which LLM to use.
-* `FOLDER_PREFIX`: name prefix for saving output folders (e.g., `TEST-LIST`).
-* `MAX_CONCEPTS`: number of concepts to include (`-1` means all).
-* `PARALLEL_GROUP_NUM`: number of groups to run in parallel.
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `API` | LLM provider to use | `gpt-41` |
+| `FOLDER_PREFIX` | Output folder prefix | `TEST-LIST` |
+| `MAX_CONCEPTS` | Number of concepts (`-1` for all) | `-1` |
+| `PARALLEL_GROUP_NUM` | Parallel processing groups | `3` |
+| `VIDEO_QUALITY` | Video quality level | `l` |
+
+**All Command-line Arguments:**
+
+```bash
+python3 agent.py --help
+```
+
+| Argument | Type | Description |
+|----------|------|-------------|
+| `--API` | string | API provider: `gpt51`, `claude`, `gpt41`, `gpt4o`, `gemini` |
+| `--knowledge_point` | string | Single topic to generate |
+| `--knowledge_file` | string | JSON file with topic list |
+| `--portrait` | flag | Portrait mode (9:16) - **default** |
+| `--landscape` | flag | Landscape mode (16:9) |
+| `--video_quality` | string | Quality: `l`, `m`, `h`, `k` |
+| `--use_feedback` | flag | Enable MLLM feedback loop |
+| `--use_assets` | flag | Enable IconFinder assets |
+| `--parallel` | flag | Enable parallel processing |
+| `--max_concepts` | int | Limit number of topics |
 
 ### 4. Project Organization
 

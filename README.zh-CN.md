@@ -31,6 +31,7 @@
 ---
 
 ## 🔥 更新
+- [x] [2025.12.03] 新增**竖屏模式** (9:16 比例) 适配手机短视频，新增 **Azure OpenAI** (gpt-5.1) 和 **Azure AI Foundry Claude** 支持！
 - [x] [2025.10.11] 近期收到关于 [ICONFINDER](https://www.iconfinder.com/account/applications) 注册问题的反馈，在 [MMMC](https://huggingface.co/datasets/YanzheChen/MMMC/tree/main/assets) 数据集中更新了 Code2Video 自动收集的 icon，作为临时替代方案。
 - [x] [2025.10.6] 在 Huggingface 上更新了 [MMMC](https://huggingface.co/datasets/YanzheChen/MMMC) 数据集。
 - [x] [2025.10.3] 感谢 @_akhaliq 在 [推特](https://x.com/_akhaliq/status/1974189217304780863)上分享我们的工作！
@@ -85,16 +86,51 @@ pip install -r requirements.txt
 
 ### 2. 配置 LLM API 密钥
 
-请在 `api_config.json` 文件中填入您的 **API key**。
+复制示例配置文件并填入您的 **API 密钥**：
+
+```bash
+cp api_config.sample.json api_config.json
+```
+
+编辑 `api_config.json`：
+
+```json
+{
+    "gemini": {
+        "api_key": "YOUR_GEMINI_API_KEY",
+        "model": "gemini-2.5-flash"
+    },
+    "gpt51": {
+        "base_url": "YOUR_AZURE_OPENAI_ENDPOINT/openai/v1/",
+        "api_key": "YOUR_API_KEY",
+        "model": "gpt-5-mini"
+    },
+    "claude": {
+        "base_url": "YOUR_AZURE_AI_FOUNDRY_ENDPOINT/anthropic",
+        "api_key": "YOUR_API_KEY",
+        "model": "claude-opus-4-5"
+    },
+    "iconfinder": {
+        "api_key": "YOUR_ICONFINDER_KEY"
+    }
+}
+```
+
+**支持的 API 提供商：**
+
+| 提供商 | 配置键 | 说明 |
+|--------|--------|------|
+| **Azure OpenAI** | `gpt51`, `gpt41`, `gpt4o` | Azure OpenAI 服务端点 |
+| **Azure AI Foundry (Claude)** | `claude` | 通过 Azure AI Foundry 使用 Anthropic Claude |
+| **Google Gemini** | `gemini` | 用于 VLM (Critic) - 视频分析 |
+| **IconFinder** | `iconfinder` | 视觉素材 API |
 
 * **LLM API**:
   * 运行 Planner 和 Coder 所需。
-  * 使用 **Claude-4-Opus** 可获得最佳的 Manim 代码质量。
-  * 使用 **ChatGPT-4.1** 亦具有不错的生成表现。
+  * 使用 **Claude-4-Opus** 或 **gpt-5.1** 可获得最佳的 Manim 代码质量。
 * **VLM API**:
-  * 运行 Critic 所需。
+  * 运行 Critic (视频布局分析) 所需。
   * 为优化布局和美学，请提供 **Gemini API key**。
-  * 使用 **gemini-2.5-pro-preview-05-06** 可获得最佳质量。
 * **视觉素材 API**:
   * 为丰富视频内容，请从 [IconFinder](https://www.iconfinder.com/account/applications) 获取并设置 `ICONFINDER_API_KEY`。
 
@@ -114,9 +150,43 @@ sh run_agent_single.sh --knowledge_point "Linear transformations and matrices"
 
 **`run_agent_single.sh` 内部重要参数:**
 
-* `API`: 指定使用的 LLM。
-* `FOLDER_PREFIX`: 输出文件夹的前缀 (例如, `TEST-single`)。
-* `KNOWLEDGE_POINT`: 目标概念，例如 `"Linear transformations and matrices"`。
+| 参数 | 说明 | 默认值 |
+|------|------|--------|
+| `API` | LLM 提供商 (`gpt51`, `claude`, `gpt41` 等) | `gpt-41` |
+| `FOLDER_PREFIX` | 输出文件夹前缀 | `TEST-single` |
+| `VIDEO_QUALITY` | 视频质量: `l`(480p), `m`(720p), `h`(1080p), `k`(4K) | `l` |
+
+**命令行选项：**
+
+```bash
+# 生成竖屏视频 (9:16 适合手机)
+sh run_agent_single.sh --knowledge_point "勾股定理" --portrait
+
+# 生成横屏视频 (16:9 传统比例)
+sh run_agent_single.sh --knowledge_point "勾股定理" --landscape
+
+# 高质量 1080p 竖屏视频
+sh run_agent_single.sh --knowledge_point "勾股定理" --portrait --video_quality h
+
+# 使用指定 API
+sh run_agent_single.sh --knowledge_point "线性代数" --API claude
+```
+
+**视频模式选项：**
+
+| 选项 | 宽高比 | 分辨率 | 适用场景 |
+|------|--------|--------|----------|
+| `--portrait` | 9:16 | 1080×1920 | 手机/短视频平台 |
+| `--landscape` | 16:9 | 1920×1080 | 传统视频平台 |
+
+**视频质量选项：**
+
+| 质量 | 横屏分辨率 | 竖屏分辨率 | 帧率 |
+|------|-----------|-----------|------|
+| `l` (低) | 854×480 | 1080×1920 | 15 |
+| `m` (中) | 1280×720 | 1080×1920 | 30 |
+| `h` (高) | 1920×1080 | 1080×1920 | 60 |
+| `k` (4K) | 3840×2160 | 1080×1920 | 60 |
 
 ---
 
@@ -132,10 +202,32 @@ sh run_agent.sh
 
 **`run_agent.sh` 内部重要参数:**
 
-* `API`: 指定使用的 LLM。
-* `FOLDER_PREFIX`: 输出文件夹的前缀 (例如, `TEST-LIST`)。
-* `MAX_CONCEPTS`: 要运行的概念数量 (`-1` 表示全部)。
-* `PARALLEL_GROUP_NUM`: 并行运行的组数。
+| 参数 | 说明 | 默认值 |
+|------|------|--------|
+| `API` | LLM 提供商 | `gpt-41` |
+| `FOLDER_PREFIX` | 输出文件夹前缀 | `TEST-LIST` |
+| `MAX_CONCEPTS` | 概念数量 (`-1` 表示全部) | `-1` |
+| `PARALLEL_GROUP_NUM` | 并行处理组数 | `3` |
+| `VIDEO_QUALITY` | 视频质量级别 | `l` |
+
+**完整命令行参数：**
+
+```bash
+python3 agent.py --help
+```
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| `--API` | string | API 提供商: `gpt51`, `claude`, `gpt41`, `gpt4o`, `gemini` |
+| `--knowledge_point` | string | 单个主题 |
+| `--knowledge_file` | string | 主题列表 JSON 文件 |
+| `--portrait` | flag | 竖屏模式 (9:16) - **默认** |
+| `--landscape` | flag | 横屏模式 (16:9) |
+| `--video_quality` | string | 质量: `l`, `m`, `h`, `k` |
+| `--use_feedback` | flag | 启用 MLLM 反馈循环 |
+| `--use_assets` | flag | 启用 IconFinder 素材 |
+| `--parallel` | flag | 启用并行处理 |
+| `--max_concepts` | int | 限制主题数量 |
 
 ### 4. 项目结构
 

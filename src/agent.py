@@ -66,6 +66,8 @@ class RunConfig:
     max_regenerate_tries: int = 10
     max_feedback_gen_code_tries: int = 3
     max_mllm_fix_bugs_tries: int = 3
+    portrait_mode: bool = True  # 竖屏模式 (9:16 比例，适合手机)
+    video_quality: str = "l"  # 视频质量: l(低), m(中), h(高), k(4K)
 
 
 class TeachingVideoAgent:
@@ -91,6 +93,8 @@ class TeachingVideoAgent:
         self.max_regenerate_tries = cfg.max_regenerate_tries
         self.max_feedback_gen_code_tries = cfg.max_feedback_gen_code_tries
         self.max_mllm_fix_bugs_tries = cfg.max_mllm_fix_bugs_tries
+        self.portrait_mode = cfg.portrait_mode
+        self.video_quality = cfg.video_quality
 
         """2. Path for output"""
         self.folder = folder
@@ -498,14 +502,39 @@ class TeachingVideoAgent:
             try:
                 scene_name = f"{section_id.title().replace('_', '')}Scene"
                 code_file = f"{section_id}.py"
-                cmd = ["manim", "-ql", str(code_file), scene_name]
+                cmd = ["manim", f"-q{self.video_quality}", str(code_file), scene_name]
+                
+                # 添加竖屏模式参数 (9:16 比例)
+                # Manim 0.19.0 使用 -r 或 --resolution 参数
+                if self.portrait_mode:
+                    cmd.extend(["-r", "1080,1920"])
 
                 result = subprocess.run(cmd, capture_output=True, text=True, cwd=self.output_dir, timeout=180)
 
                 if result.returncode == 0:
+                    # 根据质量和模式确定输出目录名
+                    # Manim 0.19.0 使用高度作为目录名：480p15, 720p30, 1080p60, 1920p15 等
+                    quality_dirs = {
+                        "l": "480p15",
+                        "m": "720p30", 
+                        "h": "1080p60",
+                        "k": "2160p60"
+                    }
+                    # 竖屏模式下，分辨率是 1080x1920，manim 使用高度命名目录
+                    if self.portrait_mode:
+                        portrait_quality_dirs = {
+                            "l": "1920p15",
+                            "m": "1920p30",
+                            "h": "1920p60",
+                            "k": "1920p60"
+                        }
+                        quality_dir = portrait_quality_dirs.get(self.video_quality, "1920p15")
+                    else:
+                        quality_dir = quality_dirs.get(self.video_quality, "480p15")
+                    
                     video_patterns = [
-                        self.output_dir / "media" / "videos" / f"{code_file.replace('.py', '')}" / "480p15" / f"{scene_name}.mp4",
-                        self.output_dir / "media" / "videos" / "480p15" / f"{scene_name}.mp4",
+                        self.output_dir / "media" / "videos" / f"{code_file.replace('.py', '')}" / quality_dir / f"{scene_name}.mp4",
+                        self.output_dir / "media" / "videos" / quality_dir / f"{scene_name}.mp4",
                     ]
 
                     for video_path in video_patterns:
@@ -994,6 +1023,12 @@ def build_and_parse_args():
     parser.add_argument("--max_concepts", type=int, help="Limit # concepts for a quick run, -1 for all", default=-1)
     parser.add_argument("--knowledge_point", type=str, help="if knowledge_file not given, can ignore", default=None)
 
+    # 竖屏模式配置
+    parser.add_argument("--portrait", action="store_true", default=True, help="竖屏模式 (9:16 比例，适合手机)")
+    parser.add_argument("--landscape", action="store_false", dest="portrait", help="横屏模式 (16:9 比例)")
+    parser.add_argument("--video_quality", type=str, default="l", choices=["l", "m", "h", "k"],
+                        help="视频质量: l(低480p), m(中720p), h(高1080p), k(4K)")
+
     return parser.parse_args()
 
 
@@ -1039,7 +1074,13 @@ if __name__ == "__main__":
         max_feedback_gen_code_tries=args.max_feedback_gen_code_tries,
         max_mllm_fix_bugs_tries=args.max_mllm_fix_bugs_tries,
         feedback_rounds=args.feedback_rounds,
+        portrait_mode=args.portrait,
+        video_quality=args.video_quality,
     )
+
+    print(f"📱 视频模式: {'竖屏 (9:16)' if args.portrait else '横屏 (16:9)'}")
+    quality_names = {'l': '480p', 'm': '720p', 'h': '1080p', 'k': '4K'}
+    print(f"🎬 视频质量: {quality_names[args.video_quality]}")
 
     run_Code2Video(
         knowledge_points,

@@ -162,13 +162,25 @@ def save_code_to_file(code: str, filename: str = "scene.py"):
 
 
 # Run the manim code to generate a video
-def run_manim_script(filename: str, scene_name: str, output_dir: str = "videos") -> str:
+def run_manim_script(filename: str, scene_name: str, output_dir: str = "videos", 
+                     portrait: bool = True, quality: str = "l") -> str:
+    """
+    Run manim to render a scene.
+    
+    Args:
+        filename: Path to the Python script
+        scene_name: Name of the scene class to render
+        output_dir: Output directory for media files
+        portrait: If True, render in portrait mode (9:16 ratio, 1080x1920)
+                  If False, render in landscape mode (16:9 ratio, 1920x1080)
+        quality: Render quality - 'l' (low), 'm' (medium), 'h' (high), 'k' (4K)
+    """
     os.makedirs(output_dir, exist_ok=True)
     output_path = os.path.join(output_dir, f"{scene_name}.mp4")
 
     cmd = [
         "manim",
-        "-pql",  # play + low quality（can changed to -pqm or -pqh）
+        f"-pq{quality}",  # play + quality (l/m/h/k)
         str(filename),  # script path
         scene_name,  # class name
         "--output_file",
@@ -176,6 +188,11 @@ def run_manim_script(filename: str, scene_name: str, output_dir: str = "videos")
         "--media_dir",
         str(output_dir),  # media output directory
     ]
+    
+    # Add portrait mode settings (9:16 aspect ratio for mobile)
+    # Manim 0.19.0 uses -r or --resolution parameter
+    if portrait:
+        cmd.extend(["-r", "1080,1920"])
 
     result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if result.returncode != 0:
