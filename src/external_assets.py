@@ -14,6 +14,29 @@ class SmartSVGDownloader:
         self.api_function = api_function
         self.iconfinder_api_key = iconfinder_api_key
 
+    def _extract_content_from_response(self, response):
+        """Extract text content from various API response formats (Gemini, OpenAI, Anthropic)"""
+        # Try Gemini format
+        try:
+            return response.candidates[0].content.parts[0].text
+        except (AttributeError, IndexError, TypeError):
+            pass
+        # Try OpenAI format
+        try:
+            return response.choices[0].message.content
+        except (AttributeError, IndexError, TypeError):
+            pass
+        # Try Anthropic format
+        try:
+            return response.content[0].text
+        except (AttributeError, IndexError, TypeError):
+            pass
+        # If it's already a string, return it directly
+        if isinstance(response, str):
+            return response
+        # Last resort: convert to string
+        return str(response)
+
     def process_storyboard(self, storyboard: Dict) -> Dict:
         storyboard_data = json.loads(json.dumps(storyboard))
         sections = storyboard_data.get("sections", [])
@@ -76,18 +99,15 @@ class SmartSVGDownloader:
         m = re.search(pattern, text, re.DOTALL)
         return m.group(1) if m else text
 
-    def _parse_api_response(self, response: str, original_storyboard: Dict) -> Dict:
+    def _parse_api_response(self, response, original_storyboard: Dict) -> Dict:
         """Parse API response and update storyboard"""
         try:
-            try:
-                content = response.candidates[0].content.parts[0].text
-            except Exception:
-                try:
-                    content = response.choices[0].message.content
-                except Exception:
-                    content = str(response)
-
-            enhanced_animations = json.loads(self._extract_json_from_markdown(content))
+            content = self._extract_content_from_response(response)
+            json_str = self._extract_json_from_markdown(content)
+            if not json_str or not json_str.strip():
+                print(f"Warning: Empty JSON content extracted from response")
+                return original_storyboard
+            enhanced_animations = json.loads(json_str)
 
             # Create a copy of the storyboard for enhancement
             enhanced_storyboard = json.loads(json.dumps(original_storyboard))
@@ -116,13 +136,13 @@ class SmartSVGDownloader:
         prompt = get_prompt_download_assets(storyboard_data=storyboard_data)
         try:
             response = self.api_function(prompt, max_tokens=100)[0]
-            try:
-                content = response.candidates[0].content.parts[0].text
-            except:
-                content = response.choices[0].message.content
+            content = self._extract_content_from_response(response)
+            if not content:
+                return []
             elements = [line.strip().lower() for line in content.strip().split("\n") if line.strip()]
             return list(dict.fromkeys(elements))[:4]
-        except:
+        except Exception as e:
+            print(f"Warning: Failed to analyze assets needed: {e}")
             return []
 
     def _check_cache(self, element: str) -> Optional[str]:

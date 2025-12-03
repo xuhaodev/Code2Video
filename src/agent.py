@@ -4,10 +4,14 @@ import json
 import time
 import random
 import subprocess
+import sys
 from typing import List, Dict, Any, Optional, Tuple, Callable
 from dataclasses import dataclass
 from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor, as_completed, ThreadPoolExecutor
+
+# Add parent directory to path for prompts module
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from gpt_request import *
 from prompts import *
@@ -21,7 +25,16 @@ class Section:
     id: str
     title: str
     lecture_lines: List[str]
-    animations: List[str]
+    animations: List[Any]  # 可以是字符串或字典
+    start_time: str = "00:00"
+    end_time: str = "01:00"
+    duration_seconds: int = 60
+
+
+@dataclass
+class ContentLine:
+    text: str
+    timestamp: str = None  # 时间戳现在是可选的
 
 
 @dataclass
@@ -29,6 +42,7 @@ class TeachingOutline:
     topic: str
     target_audience: str
     sections: List[Dict[str, Any]]
+    total_duration: str = None  # 总时长现在是可选的，由内容决定
 
 
 @dataclass
@@ -42,8 +56,8 @@ class VideoFeedback:
 
 @dataclass
 class RunConfig:
-    use_feedback: bool = True
-    use_assets: bool = True
+    use_feedback: bool = False
+    use_assets: bool = False
     api: Callable = None
     feedback_rounds: int = 2
     iconfinder_api_key: str = ""
@@ -99,6 +113,9 @@ class TeachingVideoAgent:
         self.knowledge_ref_img_folder = (
             Path(*self.output_dir.parts[: self.output_dir.parts.index("CASES")]) / "assets" / "reference"
         )
+        # 如果 assets/reference 不在 src 下，尝试上一级目录
+        if not self.knowledge_ref_img_folder.exists():
+            self.knowledge_ref_img_folder = Path(__file__).resolve().parent.parent / "assets" / "reference"
         self.GRID_IMG_PATH = self.knowledge_ref_img_folder / "GRID.png"
 
         """5. Data structure"""
@@ -112,9 +129,35 @@ class TeachingVideoAgent:
         """6. For Efficiency"""
         self.token_usage = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
 
+    def _extract_content_from_response(self, response):
+        """Extract text content from various API response formats (Gemini, OpenAI, Anthropic)"""
+        if response is None:
+            return None
+        # Try Gemini format
+        try:
+            return response.candidates[0].content.parts[0].text
+        except Exception:
+            pass
+        # Try OpenAI format
+        try:
+            return response.choices[0].message.content
+        except Exception:
+            pass
+        # Try Anthropic format
+        try:
+            return response.content[0].text
+        except Exception:
+            pass
+        # Fallback to string conversion
+        return str(response)
+
     def _request_api_and_track_tokens(self, prompt, max_tokens=10000):
         """packages API requests and automatically accumulates token usage"""
-        response, usage = self.API(prompt, max_tokens=max_tokens)
+        # gpt-51 uses max_completion_tokens instead of max_tokens
+        if self.API == request_gpt51_token:
+            response, usage = self.API(prompt, max_completion_tokens=max_tokens)
+        else:
+            response, usage = self.API(prompt, max_tokens=max_tokens)
         if usage:
             self.token_usage["prompt_tokens"] += usage.get("prompt_tokens", 0)
             self.token_usage["completion_tokens"] += usage.get("completion_tokens", 0)
@@ -135,13 +178,60 @@ class TeachingVideoAgent:
         """返回可以序列化保存的Agent状态"""
         return {"idx": self.idx, "knowledge_point": self.learning_topic, "folder": self.folder, "cfg": self.cfg}
 
+    def _generate_script_md(self, outline_data: dict):
+        """将 outline 中所有 section 的 content 整合成完整讲稿，保存为 script.md"""
+        script_file = self.output_dir / "script.md"
+        
+        topic = outline_data.get("topic", "教学讲稿")
+        target_audience = outline_data.get("target_audience", "")
+        sections = outline_data.get("sections", [])
+        
+        script_lines = []
+        script_lines.append(f"# {topic}")
+        script_lines.append("")
+        if target_audience:
+            script_lines.append(f"**目标受众**：{target_audience}")
+            script_lines.append("")
+        script_lines.append("---")
+        script_lines.append("")
+        
+        for section in sections:
+            title = section.get("title", "")
+            content = section.get("content", "")
+            
+            # 添加章节标题
+            script_lines.append(f"## {title}")
+            script_lines.append("")
+            
+            # 添加内容（兼容字符串和数组格式）
+            if isinstance(content, str):
+                script_lines.append(content)
+            elif isinstance(content, list):
+                for item in content:
+                    if isinstance(item, dict):
+                        text = item.get("text", "")
+                        script_lines.append(text)
+                    else:
+                        script_lines.append(str(item))
+            script_lines.append("")
+        
+        # 写入文件
+        with open(script_file, "w", encoding="utf-8") as f:
+            f.write("\n".join(script_lines))
+        
+        print(f"📝 Script saved: {script_file}")
+
     def generate_outline(self) -> TeachingOutline:
         outline_file = self.output_dir / "outline.json"
+        script_file = self.output_dir / "script.md"
 
         if outline_file.exists():
-            print("📂 ...")
+            print("📂 Found outline, loading...")
             with open(outline_file, "r", encoding="utf-8") as f:
                 outline_data = json.load(f)
+            # 如果 script.md 不存在，则生成
+            if not script_file.exists():
+                self._generate_script_md(outline_data)
         else:
             """Step 1: Generate teaching outline from topic"""
             refer_img_path = (
@@ -161,30 +251,45 @@ class TeachingVideoAgent:
                     if attempt == self.max_regenerate_tries:
                         raise ValueError("API requests failed multiple times")
                     continue
-                try:
-                    content = response.candidates[0].content.parts[0].text
-                except Exception:
-                    try:
-                        content = response.choices[0].message.content
-                    except Exception:
-                        content = str(response)
+                content = self._extract_content_from_response(response)
+                print(f"🔍 Raw content (first 500 chars): {content[:500] if content else 'None'}...")
                 content = extract_json_from_markdown(content)
+                print(f"🔍 After JSON extraction (first 500 chars): {content[:500] if content else 'None'}...")
                 try:
                     outline_data = json.loads(content)
                     with open(self.output_dir / "outline.json", "w", encoding="utf-8") as f:
                         json.dump(outline_data, f, ensure_ascii=False, indent=2)
                     break
-                except json.JSONDecodeError:
-                    print(f"⚠️ Outline format invalid on attempt {attempt}, retrying...")
+                except json.JSONDecodeError as e:
+                    print(f"⚠️ Outline format invalid on attempt {attempt}: {e}")
+                    print(f"⚠️ Content that failed to parse: {content[:1000] if content else 'None'}...")
                     if attempt == self.max_regenerate_tries:
                         raise ValueError("Outline format invalid multiple times, check prompt or API response")
+
+        # 生成 script.md：整合所有 section 的 content 成完整讲稿
+        self._generate_script_md(outline_data)
 
         self.outline = TeachingOutline(
             topic=outline_data["topic"],
             target_audience=outline_data["target_audience"],
             sections=outline_data["sections"],
+            total_duration=outline_data.get("total_duration"),
         )
-        print(f"== Outline generated: {self.outline.topic}")
+        # 计算实际时长（基于 content 中的句子数量，按每句约5秒估算）
+        # 兼容两种格式：新格式(字符串)和旧格式(数组)
+        total_sentences = 0
+        for s in outline_data["sections"]:
+            content = s.get("content", "")
+            if isinstance(content, str):
+                # 新格式：单个字符串，按句号/问号/感叹号分割计算句子数
+                import re
+                sentences = re.split(r'[。！？!?]', content)
+                total_sentences += len([sent for sent in sentences if sent.strip()])
+            elif isinstance(content, list):
+                # 旧格式：数组
+                total_sentences += len(content)
+        estimated_duration = f"{total_sentences * 5 // 60}:{total_sentences * 5 % 60:02d}"
+        print(f"== Outline generated: {self.outline.topic} ({len(outline_data['sections'])} sections, 约{estimated_duration})")
         return self.outline
 
     def generate_storyboard(self) -> List[Section]:
@@ -214,9 +319,34 @@ class TeachingVideoAgent:
                 if (img_name := self.KNOWLEDGE2PATH.get(self.learning_topic)) is not None
                 else None
             )
+            
+            # 计算每个 section 的预估时长（基于 content 句子数，每句约3-4秒，课后辅导风格更紧凑）
+            import re
+            outline_with_duration = self.outline.__dict__.copy()
+            total_estimated_seconds = 0
+            for section in outline_with_duration.get("sections", []):
+                content = section.get("content", "")
+                if isinstance(content, str):
+                    sentences = re.split(r'[。！？!?]', content)
+                    sentence_count = len([s for s in sentences if s.strip()])
+                elif isinstance(content, list):
+                    sentence_count = len(content)
+                else:
+                    sentence_count = 8  # 默认约30秒
+                # 课后辅导风格：每句约3.5秒，更紧凑
+                estimated_seconds = max(20, sentence_count * 4)  # 最少20秒
+                section["estimated_duration_seconds"] = estimated_seconds
+                total_estimated_seconds += estimated_seconds
+            
+            # 检查总时长是否超过10分钟（600秒），如果超过则按比例压缩
+            max_total_seconds = 600
+            if total_estimated_seconds > max_total_seconds:
+                scale_factor = max_total_seconds / total_estimated_seconds
+                for section in outline_with_duration.get("sections", []):
+                    section["estimated_duration_seconds"] = int(section["estimated_duration_seconds"] * scale_factor)
 
             prompt2 = get_prompt2_storyboard(
-                outline=json.dumps(self.outline.__dict__, ensure_ascii=False, indent=2),
+                outline=json.dumps(outline_with_duration, ensure_ascii=False, indent=2),
                 reference_image_path=refer_img_path,
             )
 
@@ -229,13 +359,7 @@ class TeachingVideoAgent:
                         raise ValueError("API requests failed multiple times")
                     continue
 
-                try:
-                    content = response.candidates[0].content.parts[0].text
-                except Exception:
-                    try:
-                        content = response.choices[0].message.content
-                    except Exception:
-                        content = str(response)
+                content = self._extract_content_from_response(response)
 
                 try:
                     json_str = extract_json_from_markdown(content)
@@ -260,11 +384,27 @@ class TeachingVideoAgent:
         # Parse into Section objects (using enhanced storyboard)
         self.sections = []
         for section_data in self.enhanced_storyboard["sections"]:
+            # 计算 section 时长（秒）
+            duration_seconds = section_data.get("duration_seconds", 60)
+            if not duration_seconds and "start_time" in section_data and "end_time" in section_data:
+                # 从 start_time 和 end_time 计算
+                try:
+                    start_parts = section_data["start_time"].split(":")
+                    end_parts = section_data["end_time"].split(":")
+                    start_secs = int(start_parts[0]) * 60 + int(start_parts[1])
+                    end_secs = int(end_parts[0]) * 60 + int(end_parts[1])
+                    duration_seconds = end_secs - start_secs
+                except:
+                    duration_seconds = 60
+            
             section = Section(
                 id=section_data["id"],
                 title=section_data["title"],
                 lecture_lines=section_data.get("lecture_lines", []),
                 animations=section_data["animations"],
+                start_time=section_data.get("start_time", "00:00"),
+                end_time=section_data.get("end_time", "01:00"),
+                duration_seconds=duration_seconds if duration_seconds else 60,
             )
             self.sections.append(section)
 
@@ -332,13 +472,7 @@ class TeachingVideoAgent:
             print(f"❌ Failed to generate code for {section.id} via API call.")
             return ""
 
-        try:
-            code = response.candidates[0].content.parts[0].text
-        except Exception:
-            try:
-                code = response.choices[0].message.content
-            except Exception:
-                code = str(response)
+        code = self._extract_content_from_response(response)
         if "```python" in code:
             code = code.split("```python")[1].split("```")[0].strip()
         elif "```" in code:
@@ -435,6 +569,7 @@ class TeachingVideoAgent:
             return has_layout_issues, suggested_improvements
 
         try:
+            # 使用 Gemini 进行 MLLM 视频分析（gpt-5.1 不支持视频输入）
             response = request_gemini_video_img(prompt=analysis_prompt, video_path=video_path, image_path=self.GRID_IMG_PATH)
             feedback_content = extract_answer_from_response(response)
             has_layout_issues, suggested_improvements = _parse_layout(feedback_content)
@@ -812,6 +947,7 @@ def get_api_and_output(API_name):
         "gpt-41": (request_gpt41_token, "Chatgpt41"),
         "claude": (request_claude_token, "CLAUDE"),
         "gpt-5": (request_gpt5_token, "Chatgpt5"),
+        "gpt-51": (request_gpt51_token, "Chatgpt51"),
         "gpt-4o": (request_gpt4o_token, "Chatgpt4o"),
         "gpt-o4mini": (request_o4mini_token, "Chatgpto4mini"),
         "Gemini": (request_gemini_token, "Gemini"),
@@ -828,7 +964,7 @@ def build_and_parse_args():
     parser.add_argument(
         "--API",
         type=str,
-        choices=["gpt-41", "claude", "gpt-5", "gpt-4o", "gpt-o4mini", "Gemini"],
+        choices=["gpt-41", "claude", "gpt-5", "gpt-51", "gpt-4o", "gpt-o4mini", "Gemini"],
         default="gpt-41",
     )
     parser.add_argument(
@@ -865,7 +1001,9 @@ if __name__ == "__main__":
     args = build_and_parse_args()
 
     api, folder_name = get_api_and_output(args.API)
-    folder = Path(__file__).resolve().parent / "CASES" / f"{args.folder_prefix}_{folder_name}"
+    # Add timestamp to make each run unique
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
+    folder = Path(__file__).resolve().parent / "CASES" / f"{args.folder_prefix}_{folder_name}_{timestamp}"
 
     _CFG_PATH = pathlib.Path(__file__).with_name("api_config.json")
     with _CFG_PATH.open("r", encoding="utf-8") as _f:
@@ -884,7 +1022,8 @@ if __name__ == "__main__":
     elif args.knowledge_file:
         with open(Path(__file__).resolve().parent / "json_files" / args.knowledge_file, "r", encoding="utf-8") as f:
             knowledge_points = json.load(f)
-            if args.max_concepts is not None:
+            # max_concepts > 0 时才截取，-1 表示处理全部
+            if args.max_concepts is not None and args.max_concepts > 0:
                 knowledge_points = knowledge_points[: args.max_concepts]
     else:
         raise ValueError("Must provide --knowledge_point | --knowledge_file")

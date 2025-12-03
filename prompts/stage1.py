@@ -1,49 +1,155 @@
-def get_prompt1_outline(knowledge_point, duration=5, reference_image_path=None):
-    base_prompt = f""" 
-    As an outstanding instructional design expert, design a logically clear, step-by-step, example-driven teaching outline.
+import re
 
-    Knowledge Point: {knowledge_point}
+def extract_grade_from_knowledge_point(knowledge_point: str) -> tuple[str, str]:
+    """
+    从知识点描述中提取年级信息
+    返回: (年级描述, 年龄范围)
+    """
+    grade_patterns = {
+        # 小学
+        r'一年级|小学一': ('小学一年级学生', '6-7岁'),
+        r'二年级|小学二': ('小学二年级学生', '7-8岁'),
+        r'三年级|小学三': ('小学三年级学生', '8-9岁'),
+        r'四年级|小学四': ('小学四年级学生', '9-10岁'),
+        r'五年级|小学五': ('小学五年级学生', '10-11岁'),
+        r'六年级|小学六': ('小学六年级学生', '11-12岁'),
+        r'小学': ('小学生', '6-12岁'),
+        # 初中
+        r'初一|七年级|初中一': ('初一学生', '12-13岁'),
+        r'初二|八年级|初中二': ('初二学生', '13-14岁'),
+        r'初三|九年级|初中三': ('初三学生', '14-15岁'),
+        r'初中': ('初中生', '12-15岁'),
+        # 高中
+        r'高一|高中一': ('高一学生', '15-16岁'),
+        r'高二|高中二': ('高二学生', '16-17岁'),
+        r'高三|高中三': ('高三学生', '17-18岁'),
+        r'高中': ('高中生', '15-18岁'),
+        # 大学
+        r'大一|大学一': ('大一学生', '18-19岁'),
+        r'大二|大学二': ('大二学生', '19-20岁'),
+        r'大三|大学三': ('大三学生', '20-21岁'),
+        r'大四|大学四': ('大四学生', '21-22岁'),
+        r'大学|本科': ('大学生', '18-22岁'),
+        r'研究生|硕士': ('研究生', '22-25岁'),
+        r'博士': ('博士生', '25-30岁'),
+    }
+    
+    for pattern, (grade, age) in grade_patterns.items():
+        if re.search(pattern, knowledge_point):
+            return grade, age
+    
+    # 默认返回
+    return None, None
+
+
+def get_prompt1_outline(knowledge_point, duration=5, reference_image_path=None):
+    # 提取年级信息
+    grade, age = extract_grade_from_knowledge_point(knowledge_point)
+    
+    if grade and age:
+        audience_hint = f"""
+    【目标学员】{grade}（{age}），考试成绩在中位线附近的学生
+    
+    这类学生的特点：
+    - 基础知识大致掌握，但核心概念理解不透彻
+    - 做题时容易在关键步骤出错
+    - 需要点拨而非从头讲解
+    """
+    else:
+        audience_hint = """
+    【注意】未检测到年级信息，请根据知识点难度判断目标受众。
+    假设学员是考试成绩中等、需要课后辅导的学生。
+    """
+
+    base_prompt = f""" 
+    你是一位经验丰富的课后辅导教师，专门帮助成绩中等的学生快速提分。
+    
+    你的风格是：像朋友聊天一样讲课，直击要害，亲切自然。
+    学生评价你："老师讲得特别清楚，感觉就像在跟我一对一聊天！"
+
+    知识点：{knowledge_point}
+    {audience_hint}
+    
+    ## 【定位】课后辅导视频，不是课堂教学
+    
+    这不是从零开始的系统讲解，而是针对已经上过课但掌握不牢的学生：
+    - 快速回顾核心概念（假设学生已有基础印象）
+    - 重点讲解易混淆、易出错的地方
+    - 给出考试中的实用技巧和口诀
+    - 用简洁但自然的语言讲清楚关键点
+    
+    ## 【时长要求】
+    - 整体视频最长不超过10分钟
+    - 简单知识点：2-4分钟足够
+    - 中等知识点：4-6分钟
+    - 复杂知识点：6-10分钟
+    - 宁短勿长，但要自然流畅
     """
 
     # Add reference image guidance
     if reference_image_path:
         base_prompt += f"""
 
-    ## Reference Image Available
-    A reference image has been provided that relates to this knowledge point.
-
-    ### How to Use the Reference Image for Outline Design:
-    - Examine the key concepts, diagrams, and visual elements shown in the image
-    - Identify which aspects of the knowledge point are emphasized or highlighted in the image
-    - Design key section that can effectively utilize the visual concepts from the image
-    - Prioritize sections that can benefit from the visual elements demonstrated in the image
+    ## 参考图片
+    已提供参考图片，可用于辅助理解关键概念的可视化呈现。
     """
 
     base_prompt += f"""
 
-    MUST output the teaching outline in JSON format as follows:
+    必须按以下JSON格式输出：
     {{
-        "topic": "Topic Name",
-        "target_audience": "Target Audience (e.g., high school students, university students, etc.)",
+        "topic": "主题名称",
+        "target_audience": "{grade + '（' + age + '）' if grade else '目标学员'}",
         "sections": [
             {{
                 "id": "section_1",
-                "title": "Section Title",
-                "content": "Description of the section content",
-                "example": "XXX"
+                "title": "章节标题（如：核心概念/易错点/解题技巧）",
+                "content": "精炼的讲解内容",
+                "key_point": "本节最核心的一句话总结"
             }},
             ...
         ]
     }}
 
-    Requirements:
-    1. The total duration should be fixed at around {duration} minutes.
-    2. The sections should be arranged in a progressive and logical order.
-    3. Emphasize key concepts and critical knowledge points.
-    4. When presenting mathematical concepts, prefer representations that integrate graphical elements to enhance comprehension.
-    5. The outline should be suitable for animation and visual presentation.
-    6. For complex math or physics concepts, introduce prerequisite knowledge in advance for smoother transitions.
-    7. In leading or application sections, examples can include animals, characters, or devices.
+    ## 【内容设计原则】简洁但自然，像老师在讲课
+
+    ### 必须包含的内容类型（按重要性排序）：
+    1. **核心概念**（1个section）：用简单的话说清楚"这个东西到底是什么"
+    2. **关键要点**（1-2个section）：考试必考的几个点，条理清晰地讲解
+    3. **易错点/易混淆点**（1个section）：学生最容易犯的错误，如何避免
+    4. **解题口诀/记忆技巧**（可选）：如果有好用的口诀或技巧，自然带出
+
+    ### 讲解风格要求（关键！）：
+    1. **教师口语化**：像真的在给学生讲课，用"咱们"、"你看"、"对吧"、"记住啊"等口语词
+    2. **自然过渡**：句子之间要有衔接，不要像念清单
+    3. **适当强调**：重点地方要有语气词，如"这个很重要"、"考试必考"、"千万别搞混"
+    4. **简洁但完整**：每个知识点用2-3句话讲清楚，不要只列关键词
+    5. **有节奏感**：讲完一个点稍作停顿，再讲下一个
+
+    ### content 示例：
+    ❌ 错误示例（太干巴巴，像背书）：
+    "content": "轴对称就一句话：沿某条直线对折，两边能完全重合。这条直线叫对称轴。区分两个概念：①轴对称图形——一个图形自己对折能重合；②两个图形成轴对称——两个图形沿某条直线对折能重合。"
+
+    ✅ 正确示例（教师讲课风格）：
+    "content": "好，咱们先把轴对称的核心概念搞清楚。什么叫轴对称？简单说就是：沿着一条直线对折，两边能完全重合。这条直线，咱们就叫它对称轴。这里有个考试爱考的点，你得分清楚两个概念：一个是轴对称图形，就是一个图形自己对折能重合；另一个是两个图形成轴对称，意思是两个图形沿某条直线对折后能重合。别搞混了啊！"
+
+    ❌ 错误示例（只有关键词）：
+    "content": "性质一：对应点到对称轴的距离相等。性质二：对应点连线被对称轴垂直平分。性质三：对应线段相等，对应角相等。"
+
+    ✅ 正确示例（教师讲课风格）：
+    "content": "接下来咱们说说轴对称的三大性质，这个考试必考，你得记牢。第一个，对应点到对称轴的距离相等，这个好理解吧？对折嘛，两边一样远。第二个，对应点的连线会被对称轴垂直平分，注意啊，是垂直平分，两个条件都得满足。第三个，对应的线段相等，对应的角也相等。记个口诀：距离等、垂直分、形状大小都不变。"
+
+    ## 章节设计要求：
+    1. **章节数量精简**：一般2-4个section足够，最多不超过5个
+    2. **每个section聚焦一个主题**：核心概念/要点/易错点/技巧
+    3. **标题要明确**：让学生一眼知道这节讲什么
+    4. **key_point必填**：每节的核心总结，便于学生记忆
+
+    ## 其他要求：
+    1. 假设学生已经上过课，不需要从零讲起
+    2. 数学/物理概念优先用图形和公式展示
+    3. 给出的技巧要实用，能直接用于解题
+    4. 语言自然流畅，像真实的一对一辅导
     """
 
     return base_prompt

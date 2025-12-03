@@ -4,10 +4,17 @@ import json
 def get_prompt2_storyboard(outline, reference_image_path):
 
     base_prompt = f""" 
-    You are a professional education Explainer and Animator, expert at converting mathematical teaching outlines into storyboard scripts suitable for the Manim animation system.
+    You are a professional education content designer, expert at converting teaching outlines into concise storyboard scripts for Manim animations.
+
+    ## 定位：课后辅导视频
+    这是面向中等学生的课后辅导内容，特点是：
+    - 简洁精炼，直击要点
+    - 每个 lecture line 都是干货
+    - 动画用于强调关键概念，不要花哨
+    - 整体节奏紧凑，不拖沓
 
     ## Task
-    Convert the following teaching outline into a detailed step-by-step storyboard script:
+    Convert the following teaching outline into a storyboard script:
 
     {outline}
     """
@@ -17,63 +24,63 @@ def get_prompt2_storyboard(outline, reference_image_path):
         base_prompt += f"""
 
     ## Reference Image Available
-    A reference image has been provided to assist with designing the animations for this concept.
-
-    ### How to Use the Reference Image:
-    - Examine the visual elements, diagrams, layouts, and representations shown in the image
-    - Use the image to inspire and guide your animation design, especially for the KEY SECTIONS
-    - Focus on recreating the visual concepts using Manim objects (shapes, text, mathematical expressions)
-    - Pay attention to how information is organized spatially in the image
-    - If the image shows mathematical diagrams, design animations that build similar visualizations step by step
-    - Use the image to identify which sections should have more detailed/complex animations
-    - DO NOT reference the image directly in animations - instead recreate the concepts with Manim code
-    
-    ### Priority:
-    - Give extra attention to sections that can benefit most from the visual concepts shown in the reference image
+    Use the reference image to guide animation design for key concepts.
     """
 
     base_prompt += """
     ## Storyboard Requirements
     
-    ### Content Structure
-    - For key sections (max 3 sections), use up to 5 lecture lines along with their corresponding 5 animations to provide a logically coherent explanation. Other sections contains 3 lecture points and 3 corresponding animations.
-    - In key sections, assets not forbiddened.
-    - Must keep each lecture line brief [NO MORE THAN 10 WORDS FOR ONE LINE].
-    - Animation steps must closely correspond to lecture points.
-    - Do not apply any animation to lecture lines except for changing the color of corresponding line when its related animation is presented.
+    ### Content Structure（精简原则）
+    - 每个 section 最多 3-4 个 lecture lines
+    - 每个 lecture line 对应 1 个动画
+    - lecture line 必须简短精炼【不超过8个字】
+    - 动画聚焦于展示核心概念，不要过度装饰
+
+    ### 【重要】动画时间要求
+    - 每个 section 在 outline 中已包含 `estimated_duration_seconds`
+    - 每个 section 必须输出 `duration_seconds`，值应等于 `estimated_duration_seconds`
+    - 每个 animation 必须指定 `duration`（秒数）
+    - 所有 animation 的 duration 之和 = section 的 duration_seconds
+    - 课后辅导风格：节奏紧凑，不要过多停顿
 
     ### Visual Design
-    - Colors: Background fixed at #000000, use ligt color for contrast.
-    - IMPORTANT: Provide hexadecimal codes for colors.
-    - Element Labeling: Assign clear colors and labels near all elements (formulas, etc.).
+    - Background: #000000
+    - Use bright, contrasting colors (provide hex codes)
+    - 重点内容用醒目颜色（如 #FFE66D, #FF6B6B）
 
-    ### Animation Effects
-    - Basic Animations: Appearance, movement, color changes, fade in/out, scaling.
-    - Emphasis Effects: Flashing, color changes, bolding to highlight key knowledge points.
+    ### Animation Effects（简洁为主）
+    - 基础动画：出现、移动、颜色变化、淡入淡出
+    - 强调效果：闪烁、高亮关键公式/要点
+    - 避免复杂动画，追求清晰直观
 
     ### Constraints
-    - No panels or 3D methods.
-    - Avoid coordinate axes unless absolutely necessary.
-    - Focus animations on visualizing concepts that are difficult to grasp from lecture lines alone.
-    - Ensure that all animations are easy to understand.
-    - Do not involve any external elements (such as SVGs or other assets that require downloading or dependencies).
+    - 不使用3D效果
+    - 不使用外部资源（SVG等）
+    - 坐标轴只在必要时使用
+    - 动画服务于理解，不要为了炫酷而复杂
 
-    MUST output the storyboard design in JSON format:
+    MUST output JSON format:
     {{
         "sections": [
             {{
                 "id": "section_1",
-                "title": "Sec 1: Section Title",
-                "lecture_lines": ["Lecture line 1", "Lecture line 2", ...],
+                "title": "Sec 1: 核心概念",
+                "duration_seconds": 30,
+                "lecture_lines": ["要点一", "要点二", "要点三"],
                 "animations": [
-                    "Animation step 1: ...",
-                    "Animation step 2: ...",
-                    ...
+                    {{"step": 1, "duration": 10, "description": "..."}},
+                    {{"step": 2, "duration": 10, "description": "..."}},
+                    {{"step": 3, "duration": 10, "description": "..."}}
                 ]
             }},
             ...
         ]
     }}
+    
+    Note: 
+    - `duration_seconds` must match `estimated_duration_seconds` from outline
+    - Sum of animation durations = `duration_seconds`
+    - Keep it concise: 10-20 seconds per animation is typical
     """
 
     return base_prompt

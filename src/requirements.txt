@@ -54,7 +54,7 @@ watchdog==6.0.0             # File system monitoring
 # ============================================================================
 # Mathematical and Scientific Computing
 # ============================================================================
-networkx==3.5               # Graph operations (used by Manim)
+networkx==3.4.2             # Graph operations (used by Manim)
 sympy==1.14.0               # Symbolic mathematics (used by Manim)
 mpmath==1.3.0               # Multiple-precision mathematics
 

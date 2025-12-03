@@ -4,6 +4,9 @@ import random
 import os
 import base64
 from openai import OpenAI
+from anthropic import AnthropicFoundry
+from google import genai
+from google.genai import types
 import time
 import json
 import pathlib
@@ -27,34 +30,31 @@ def generate_log_id():
 def request_claude(prompt, log_id=None, max_tokens=16384, max_retries=3):
     base_url = cfg("claude", "base_url")
     api_key = cfg("claude", "api_key")
-    client = OpenAI(base_url=base_url, api_key=api_key)
+    model_name = cfg("claude", "model")
+
+    client = AnthropicFoundry(
+        api_key=api_key,
+        base_url=base_url
+    )
 
     if log_id is None:
         log_id = generate_log_id()
 
-    extra_headers = {"X-TT-LOGID": log_id}
-
     retry_count = 0
     while retry_count < max_retries:
         try:
-            response = client.chat.completions.create(
-                model="claude-4-opus",
+            message = client.messages.create(
+                model=model_name,
                 messages=[
                     {
                         "role": "user",
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": prompt,
-                            },
-                        ],
+                        "content": prompt,
                     }
                 ],
                 max_tokens=max_tokens,
-                extra_headers=extra_headers,
             )
 
-            return response.choices[0].message.content.strip()
+            return message.content[0].text.strip()
 
         except Exception as e:
             retry_count += 1
@@ -72,39 +72,37 @@ def request_claude(prompt, log_id=None, max_tokens=16384, max_retries=3):
 def request_claude_token(prompt, log_id=None, max_tokens=10000, max_retries=3):
     base_url = cfg("claude", "base_url")
     api_key = cfg("claude", "api_key")
-    client = OpenAI(base_url=base_url, api_key=api_key)
+    model_name = cfg("claude", "model")
+
+    client = AnthropicFoundry(
+        api_key=api_key,
+        base_url=base_url
+    )
 
     if log_id is None:
         log_id = generate_log_id()
 
-    extra_headers = {"X-TT-LOGID": log_id}
     usage_info = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
 
     retry_count = 0
     while retry_count < max_retries:
         try:
-            completion = client.chat.completions.create(
-                model="claude-4-opus",
+            message = client.messages.create(
+                model=model_name,
                 messages=[
                     {
                         "role": "user",
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": prompt,
-                            },
-                        ],
+                        "content": prompt,
                     }
                 ],
                 max_tokens=max_tokens,
-                extra_headers=extra_headers,
             )
-            # --- MODIFIED: token usage ---
-            if completion.usage:
-                usage_info["prompt_tokens"] = completion.usage.prompt_tokens
-                usage_info["completion_tokens"] = completion.usage.completion_tokens
-                usage_info["total_tokens"] = completion.usage.total_tokens
-            return completion, usage_info
+            # Extract token usage from Anthropic response
+            if message.usage:
+                usage_info["prompt_tokens"] = message.usage.input_tokens
+                usage_info["completion_tokens"] = message.usage.output_tokens
+                usage_info["total_tokens"] = message.usage.input_tokens + message.usage.output_tokens
+            return message, usage_info
 
         except Exception as e:
             retry_count += 1
@@ -193,75 +191,54 @@ def request_gemini_video_img(
     prompt: str, video_path: str, image_path: str, log_id=None, max_tokens: int = 10000, max_retries: int = 3
 ):
     """
-    Makes a multimodal request to the Gemini-2.5 model using video & ref img + text.
+    Makes a multimodal request to the Gemini model using video & ref img + text.
+    Uses Google official genai SDK.
 
     Args:
-        prompt (str): The user instruction, e.g., "Please evaluate and suggest improvements for this educational animation."
-        video_path (str): Local path to the video file (MP4 preferred, <20MB recommended).
-        log_id (str, optional): Tracking ID
+        prompt (str): The user instruction
+        video_path (str): Local path to the video file (MP4 preferred)
+        image_path (str): Local path to the reference image
+        log_id (str, optional): Tracking ID (unused with Google SDK)
         max_tokens (int): Max response token length
         max_retries (int): Max retry attempts
 
     Returns:
-        dict: The Gemini model response
+        response: The Gemini model response
     """
-    base_url = cfg("gemini", "base_url")
-    api_version = cfg("gemini", "api_version")
     api_key = cfg("gemini", "api_key")
     model_name = cfg("gemini", "model")
 
-    client = openai.AzureOpenAI(
-        azure_endpoint=base_url,
-        api_version=api_version,
-        api_key=api_key,
-    )
+    # Initialize Google genai client
+    client = genai.Client(api_key=api_key)
 
-    if log_id is None:
-        log_id = generate_log_id()
-
-    extra_headers = {"X-TT-LOGID": log_id}
-
-    # Load and base64-encode video
+    # Check files exist
     if not os.path.exists(video_path):
         raise FileNotFoundError(f"Video not found: {video_path}")
-    with open(video_path, "rb") as f:
-        video_bytes = f.read()
-    video_base64 = base64.b64encode(video_bytes).decode("utf-8")
-    video_data_url = f"data:video/mp4;base64,{video_base64}"
-
     if not os.path.isfile(image_path):
         raise FileNotFoundError(f"Image file not found: {image_path}")
-    with open(image_path, "rb") as image_file:
-        base64_image = base64.b64encode(image_file.read()).decode("utf-8")
-    image_data_url = f"data:image/png;base64,{base64_image}"
+
+    # Upload video file to Gemini
+    video_file = client.files.upload(file=video_path)
+    
+    # Read image as bytes
+    with open(image_path, "rb") as f:
+        image_bytes = f.read()
 
     retry_count = 0
     while retry_count < max_retries:
         try:
-            completion = client.chat.completions.create(
+            response = client.models.generate_content(
                 model=model_name,
-                messages=[
-                    {
-                        "role": "user",
-                        "content": [
-                            {"type": "text", "text": prompt},
-                            {
-                                "type": "image_url",
-                                "image_url": {"url": video_data_url, "detail": "high"},
-                                "media_type": "video/mp4",
-                            },
-                            {
-                                "type": "image_url",
-                                "image_url": {"url": image_data_url, "detail": "high"},
-                                "media_type": "image/png",
-                            },
-                        ],
-                    }
+                contents=[
+                    prompt,
+                    video_file,
+                    types.Part.from_bytes(data=image_bytes, mime_type="image/png"),
                 ],
-                max_tokens=max_tokens,
-                extra_headers=extra_headers,
+                config=types.GenerateContentConfig(
+                    max_output_tokens=max_tokens,
+                ),
             )
-            return completion
+            return response
 
         except Exception as e:
             retry_count += 1
@@ -1033,6 +1010,211 @@ def request_gpt41_img(prompt, image_path=None, log_id=None, max_tokens=1000, max
                 f"Request failed with error: {str(e)}. Retrying in {delay:.2f} seconds... (Attempt {retry_count}/{max_retries})"
             )
             time.sleep(delay)
+
+
+def request_gpt51(prompt, log_id=None, max_completion_tokens=8000, max_retries=3, max_tokens=None):
+    """
+    Makes a request to the gpt-5.1 model via Azure OpenAI (OpenAI SDK compatible) with retry functionality.
+
+    Args:
+        prompt (str): The text prompt to send to the model
+        log_id (str, optional): The log ID for tracking requests, defaults to tkb+timestamp
+        max_completion_tokens (int, optional): Maximum tokens for response, default 8000
+        max_retries (int, optional): Maximum number of retry attempts, default 3
+        max_tokens (int, optional): Alias for max_completion_tokens (for compatibility)
+
+    Returns:
+        dict: The model's response
+    """
+    # Support max_tokens as alias for compatibility with other models
+    if max_tokens is not None:
+        max_completion_tokens = max_tokens
+
+    base_url = cfg("gpt51", "base_url")
+    api_key = cfg("gpt51", "api_key")
+    model_name = cfg("gpt51", "model")
+
+    # Use OpenAI client with Azure OpenAI compatible endpoint
+    client = OpenAI(
+        base_url=base_url,
+        api_key=api_key,
+    )
+
+    if log_id is None:
+        log_id = generate_log_id()
+
+    extra_headers = {"X-TT-LOGID": log_id}
+
+    retry_count = 0
+    while retry_count < max_retries:
+        try:
+            completion = client.chat.completions.create(
+                model=model_name,
+                messages=[{"role": "user", "content": prompt}],
+                max_completion_tokens=max_completion_tokens,
+                extra_headers=extra_headers,
+            )
+            return completion
+        except Exception as e:
+            retry_count += 1
+            if retry_count >= max_retries:
+                raise Exception(f"Failed after {max_retries} attempts. Last error: {str(e)}")
+
+            # Exponential backoff with jitter
+            delay = (2**retry_count) * 0.1 + (random.random() * 0.1)
+            print(
+                f"Request failed with error: {str(e)}. Retrying in {delay:.2f} seconds... (Attempt {retry_count}/{max_retries})"
+            )
+            time.sleep(delay)
+
+
+def request_gpt51_token(prompt, log_id=None, max_completion_tokens=8000, max_retries=3, max_tokens=None):
+    """
+    Makes a request to the gpt-5.1 model via Azure OpenAI (OpenAI SDK compatible) with retry functionality.
+    Returns both the completion and token usage info.
+
+    Args:
+        prompt (str): The text prompt to send to the model
+        log_id (str, optional): The log ID for tracking requests, defaults to tkb+timestamp
+        max_completion_tokens (int, optional): Maximum tokens for response, default 8000
+        max_retries (int, optional): Maximum number of retry attempts, default 3
+        max_tokens (int, optional): Alias for max_completion_tokens (for compatibility)
+
+    Returns:
+        tuple: (completion, usage_info) - The model's response and token usage statistics
+    """
+    # Support max_tokens as alias for compatibility with other models
+    if max_tokens is not None:
+        max_completion_tokens = max_tokens
+
+    base_url = cfg("gpt51", "base_url")
+    api_key = cfg("gpt51", "api_key")
+    model_name = cfg("gpt51", "model")
+
+    # Use OpenAI client with Azure OpenAI compatible endpoint
+    client = OpenAI(
+        base_url=base_url,
+        api_key=api_key,
+    )
+
+    if log_id is None:
+        log_id = generate_log_id()
+
+    extra_headers = {"X-TT-LOGID": log_id}
+    usage_info = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+
+    retry_count = 0
+    while retry_count < max_retries:
+        try:
+            completion = client.chat.completions.create(
+                model=model_name,
+                messages=[{"role": "user", "content": prompt}],
+                max_completion_tokens=max_completion_tokens,
+                extra_headers=extra_headers,
+            )
+
+            if completion.usage:
+                usage_info["prompt_tokens"] = completion.usage.prompt_tokens
+                usage_info["completion_tokens"] = completion.usage.completion_tokens
+                usage_info["total_tokens"] = completion.usage.total_tokens
+            return completion, usage_info
+
+        except Exception as e:
+            retry_count += 1
+            if retry_count >= max_retries:
+                print(f"Failed after {max_retries} attempts. Last error: {str(e)}")
+                return None, usage_info
+
+            # Exponential backoff with jitter
+            delay = (2**retry_count) * 0.1 + (random.random() * 0.1)
+            print(
+                f"Request failed with error: {str(e)}. Retrying in {delay:.2f} seconds... (Attempt {retry_count}/{max_retries})"
+            )
+            time.sleep(delay)
+
+    return None, usage_info
+
+
+def request_gpt51_video_img(
+    prompt: str, video_path: str, image_path: str, log_id=None, max_completion_tokens: int = 10000, max_retries: int = 3
+):
+    """
+    Makes a multimodal request to the gpt-5.1 model using video & ref img + text.
+
+    Args:
+        prompt (str): The user instruction
+        video_path (str): Local path to the video file (MP4 preferred)
+        image_path (str): Local path to the reference image file
+        log_id (str, optional): Tracking ID
+        max_completion_tokens (int): Max response token length
+        max_retries (int): Max retry attempts
+
+    Returns:
+        dict: The model response
+    """
+    base_url = cfg("gpt51", "base_url")
+    api_key = cfg("gpt51", "api_key")
+    model_name = cfg("gpt51", "model")
+
+    client = OpenAI(
+        base_url=base_url,
+        api_key=api_key,
+    )
+
+    if log_id is None:
+        log_id = generate_log_id()
+
+    extra_headers = {"X-TT-LOGID": log_id}
+
+    # Load and base64-encode video
+    if not os.path.exists(video_path):
+        raise FileNotFoundError(f"Video not found: {video_path}")
+    with open(video_path, "rb") as f:
+        video_bytes = f.read()
+    video_base64 = base64.b64encode(video_bytes).decode("utf-8")
+    video_data_url = f"data:video/mp4;base64,{video_base64}"
+
+    # Load and base64-encode image
+    if not os.path.isfile(image_path):
+        raise FileNotFoundError(f"Image file not found: {image_path}")
+    with open(image_path, "rb") as image_file:
+        base64_image = base64.b64encode(image_file.read()).decode("utf-8")
+    image_data_url = f"data:image/png;base64,{base64_image}"
+
+    retry_count = 0
+    while retry_count < max_retries:
+        try:
+            completion = client.chat.completions.create(
+                model=model_name,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": prompt},
+                            {
+                                "type": "image_url",
+                                "image_url": {"url": video_data_url, "detail": "high"},
+                            },
+                            {
+                                "type": "image_url",
+                                "image_url": {"url": image_data_url, "detail": "high"},
+                            },
+                        ],
+                    }
+                ],
+                max_completion_tokens=max_completion_tokens,
+                extra_headers=extra_headers,
+            )
+            return completion
+
+        except Exception as e:
+            retry_count += 1
+            if retry_count >= max_retries:
+                raise Exception(f"Failed after {max_retries} attempts. Last error: {str(e)}")
+            delay = (2**retry_count) * 0.2 + random.random() * 0.2
+            print(f"Retry {retry_count}/{max_retries} after error: {e}, waiting {delay:.2f}s...")
+            time.sleep(delay)
+    return None
 
 
 if __name__ == "__main__":

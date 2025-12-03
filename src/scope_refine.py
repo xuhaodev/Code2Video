@@ -257,6 +257,29 @@ class ScopeRefineFixer:
         self.common_fixes = self._load_common_fixes()
         self.error_patterns = self._load_error_patterns()
 
+    def _extract_content_from_response(self, response):
+        """Extract text content from various API response formats (Gemini, OpenAI, Anthropic)"""
+        # Try Gemini format
+        try:
+            return response.candidates[0].content.parts[0].text
+        except (AttributeError, IndexError, TypeError):
+            pass
+        # Try OpenAI format
+        try:
+            return response.choices[0].message.content
+        except (AttributeError, IndexError, TypeError):
+            pass
+        # Try Anthropic format
+        try:
+            return response.content[0].text
+        except (AttributeError, IndexError, TypeError):
+            pass
+        # If it's already a string, return it directly
+        if isinstance(response, str):
+            return response
+        # Last resort: convert to string
+        return str(response)
+
     def _load_common_fixes(self) -> Dict[str, str]:
         """Load common error fix patterns"""
         return {
@@ -529,12 +552,7 @@ class ScopeRefineFixer:
                 response = self.request_gpt(fix_prompt, max_tokens=self.MAX_CODE_TOKEN_LENGTH)
                 response = get_completion_only(response)
 
-                if hasattr(response, "choices") and response.choices:
-                    fixed_code = response.choices[0].message.content
-                elif isinstance(response, str):
-                    fixed_code = response
-                else:
-                    fixed_code = str(response)
+                fixed_code = self._extract_content_from_response(response)
 
                 fixed_code = self._clean_code_format(fixed_code)
 
@@ -615,12 +633,7 @@ class ScopeRefineFixer:
         try:
             response = self.request_gpt(prompt, max_tokens=self.MAX_CODE_TOKEN_LENGTH)
             response = get_completion_only(response)
-            if hasattr(response, "choices") and response.choices:
-                fixed_code = response.choices[0].message.content
-            elif isinstance(response, str):
-                fixed_code = response
-            else:
-                fixed_code = str(response)
+            fixed_code = self._extract_content_from_response(response)
             return self._clean_code_format(fixed_code)
 
         except Exception as e:

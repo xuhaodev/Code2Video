@@ -17,13 +17,39 @@ def extract_json_from_markdown(text):
 
 
 def extract_answer_from_response(response):
+    # Try Google genai SDK format (response.text)
+    try:
+        content = response.text
+        if content:
+            return extract_json_from_markdown(content)
+    except (AttributeError, TypeError):
+        pass
+    # Try Gemini REST API format
     try:
         content = response.candidates[0].content.parts[0].text
-    except Exception:
-        try:
-            content = response.choices[0].message.content
-        except Exception:
-            content = str(response)
+    except (AttributeError, IndexError, TypeError):
+        pass
+    else:
+        return extract_json_from_markdown(content)
+    # Try OpenAI format
+    try:
+        content = response.choices[0].message.content
+    except (AttributeError, IndexError, TypeError):
+        pass
+    else:
+        return extract_json_from_markdown(content)
+    # Try Anthropic format
+    try:
+        content = response.content[0].text
+    except (AttributeError, IndexError, TypeError):
+        pass
+    else:
+        return extract_json_from_markdown(content)
+    # Fallback
+    if isinstance(response, str):
+        content = response
+    else:
+        content = str(response)
     content = extract_json_from_markdown(content)
     return content
 

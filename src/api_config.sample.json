@@ -1,0 +1,43 @@
+{
+    "gemini": {
+        "api_key": "YOUR_GEMINI_API_KEY",
+        "model": "gemini-2.5-flash"
+    },
+    "gpt41": {
+        "base_url": "YOUR_AZURE_OPENAI_ENDPOINT",
+        "api_version": "2024-03-01-preview",
+        "api_key": "YOUR_API_KEY",
+        "model": "gpt-4.1-2025-04-14"
+    },
+    "gpt5": {
+        "base_url": "YOUR_AZURE_OPENAI_ENDPOINT",
+        "api_version": "YOUR_API_VERSION",
+        "api_key": "YOUR_API_KEY",
+        "model": "gpt-5-chat-2025-08-07"
+    },
+    "gpto4mini": {
+        "base_url": "YOUR_AZURE_OPENAI_ENDPOINT",
+        "api_version": "YOUR_API_VERSION",
+        "api_key": "YOUR_API_KEY",
+        "model": "o4-mini-2025-04-16"
+    },
+    "gpt4o": {
+        "base_url": "YOUR_AZURE_OPENAI_ENDPOINT",
+        "api_version": "YOUR_API_VERSION",
+        "api_key": "YOUR_API_KEY",
+        "model": "gpt-4o-2024-11-20"
+    },
+    "gpt51": {
+        "base_url": "YOUR_AZURE_OPENAI_ENDPOINT/openai/v1/",
+        "api_key": "YOUR_API_KEY",
+        "model": "gpt-5-mini"
+    },
+    "claude": {
+        "base_url": "YOUR_AZURE_AI_FOUNDRY_ENDPOINT/anthropic",
+        "api_key": "YOUR_API_KEY",
+        "model": "claude-opus-4-5"
+    },
+    "iconfinder": {
+        "api_key": "YOUR_ICONFINDER_KEY"
+    }
+}
