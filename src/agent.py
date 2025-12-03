@@ -336,9 +336,9 @@ class TeachingVideoAgent:
                 elif isinstance(content, list):
                     sentence_count = len(content)
                 else:
-                    sentence_count = 8  # 默认约30秒
-                # 课后辅导风格：每句约3.5秒，更紧凑
-                estimated_seconds = max(20, sentence_count * 4)  # 最少20秒
+                    sentence_count = 8  # 默认约40秒
+                # 课后辅导风格：每句约5秒
+                estimated_seconds = max(20, sentence_count * 5)  # 最少20秒
                 section["estimated_duration_seconds"] = estimated_seconds
                 total_estimated_seconds += estimated_seconds
             
