@@ -36,12 +36,20 @@ def get_prompt2_storyboard(outline, reference_image_path):
     - lecture line 必须简短精炼【不超过8个字】
     - 动画聚焦于展示核心概念，不要过度装饰
 
-    ### 【重要】动画时间要求
-    - 每个 section 在 outline 中已包含 `estimated_duration_seconds`
+    ### 【重要】动画时间要求 - 与朗读时长同步
+    - 每个 section 在 outline 中已包含 `estimated_duration_seconds` 和 `char_count`（字符数）
+    - 时长计算方式：每5个字符约1秒朗读时间
     - 每个 section 必须输出 `duration_seconds`，值应等于 `estimated_duration_seconds`
     - 每个 animation 必须指定 `duration`（秒数）
     - 所有 animation 的 duration 之和 = section 的 duration_seconds
-    - 课后辅导风格：节奏紧凑，不要过多停顿
+    - 每个动画时长应与对应 lecture_line 的内容量成正比
+    - 课后辅导风格：节奏紧凑，动画与朗读同步
+
+    ### 动画时长分配建议
+    - 简短要点（5-10字）：8-12秒动画
+    - 中等内容（10-20字）：12-20秒动画
+    - 详细解释（20字以上）：20-30秒动画
+    - 动画时长 = 动画效果 run_time + 停顿 wait 时间
 
     ### Visual Design
     - Background: #000000
@@ -65,12 +73,12 @@ def get_prompt2_storyboard(outline, reference_image_path):
             {{
                 "id": "section_1",
                 "title": "Sec 1: 核心概念",
-                "duration_seconds": 30,
+                "duration_seconds": 52,
                 "lecture_lines": ["要点一", "要点二", "要点三"],
                 "animations": [
-                    {{"step": 1, "duration": 10, "description": "..."}},
-                    {{"step": 2, "duration": 10, "description": "..."}},
-                    {{"step": 3, "duration": 10, "description": "..."}}
+                    {{"step": 1, "duration": 18, "description": "..."}},
+                    {{"step": 2, "duration": 17, "description": "..."}},
+                    {{"step": 3, "duration": 17, "description": "..."}}
                 ]
             }},
             ...
@@ -78,9 +86,9 @@ def get_prompt2_storyboard(outline, reference_image_path):
     }}
     
     Note: 
-    - `duration_seconds` must match `estimated_duration_seconds` from outline
+    - `duration_seconds` must match `estimated_duration_seconds` from outline（基于字符数计算）
     - Sum of animation durations = `duration_seconds`
-    - Keep it concise: 10-20 seconds per animation is typical
+    - 动画时长应与 talk script 朗读时长同步
     """
 
     return base_prompt

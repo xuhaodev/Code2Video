@@ -29,6 +29,7 @@ class Section:
     start_time: str = "00:00"
     end_time: str = "01:00"
     duration_seconds: int = 60
+    talk_script: str = ""  # 原始的 content，用于 TTS 和时长参考
 
 
 @dataclass
@@ -279,21 +280,25 @@ class TeachingVideoAgent:
             sections=outline_data["sections"],
             total_duration=outline_data.get("total_duration"),
         )
-        # 计算实际时长（基于 content 中的句子数量，按每句约5秒估算）
-        # 兼容两种格式：新格式(字符串)和旧格式(数组)
-        total_sentences = 0
+        # 计算实际时长（基于 content 字符数，每5个字符约1秒）
+        # 统计所有字符：中文、英文、数学符号、标点等
+        total_char_count = 0
         for s in outline_data["sections"]:
             content = s.get("content", "")
             if isinstance(content, str):
-                # 新格式：单个字符串，按句号/问号/感叹号分割计算句子数
-                import re
-                sentences = re.split(r'[。！？!?]', content)
-                total_sentences += len([sent for sent in sentences if sent.strip()])
+                # 统计所有可见字符（去除空白）
+                char_count = len(content.replace(" ", "").replace("\n", "").replace("\t", ""))
+                total_char_count += char_count
             elif isinstance(content, list):
-                # 旧格式：数组
-                total_sentences += len(content)
-        estimated_duration = f"{total_sentences * 5 // 60}:{total_sentences * 5 % 60:02d}"
-        print(f"== Outline generated: {self.outline.topic} ({len(outline_data['sections'])} sections, 约{estimated_duration})")
+                # 旧格式：数组，合并所有内容再统计
+                for item in content:
+                    if isinstance(item, str):
+                        total_char_count += len(item.replace(" ", "").replace("\n", "").replace("\t", ""))
+        
+        # 每5个字符约1秒
+        total_estimated_seconds = max(20, total_char_count // 5)
+        estimated_duration = f"{total_estimated_seconds // 60}:{total_estimated_seconds % 60:02d}"
+        print(f"== Outline generated: {self.outline.topic} ({len(outline_data['sections'])} sections, {total_char_count}字符, 约{estimated_duration})")
         return self.outline
 
     def generate_storyboard(self) -> List[Section]:
@@ -324,22 +329,24 @@ class TeachingVideoAgent:
                 else None
             )
             
-            # 计算每个 section 的预估时长（基于 content 句子数，每句约3-4秒，课后辅导风格更紧凑）
-            import re
+            # 计算每个 section 的预估时长（基于 content 字符数，每5个字符约1秒）
             outline_with_duration = self.outline.__dict__.copy()
             total_estimated_seconds = 0
             for section in outline_with_duration.get("sections", []):
                 content = section.get("content", "")
                 if isinstance(content, str):
-                    sentences = re.split(r'[。！？!?]', content)
-                    sentence_count = len([s for s in sentences if s.strip()])
+                    # 统计所有可见字符（去除空白）
+                    char_count = len(content.replace(" ", "").replace("\n", "").replace("\t", ""))
                 elif isinstance(content, list):
-                    sentence_count = len(content)
+                    # 旧格式：数组，合并所有内容再统计
+                    char_count = sum(len(item.replace(" ", "").replace("\n", "").replace("\t", "")) 
+                                    for item in content if isinstance(item, str))
                 else:
-                    sentence_count = 8  # 默认约40秒
-                # 课后辅导风格：每句约5秒
-                estimated_seconds = max(20, sentence_count * 5)  # 最少20秒
+                    char_count = 100  # 默认约20秒
+                # 每5个字符约1秒，最少20秒
+                estimated_seconds = max(20, char_count // 5)
                 section["estimated_duration_seconds"] = estimated_seconds
+                section["char_count"] = char_count  # 保存字符数供后续使用
                 total_estimated_seconds += estimated_seconds
             
             # 检查总时长是否超过10分钟（600秒），如果超过则按比例压缩
@@ -387,6 +394,17 @@ class TeachingVideoAgent:
 
         # Parse into Section objects (using enhanced storyboard)
         self.sections = []
+        
+        # 创建 outline section id 到 content 的映射
+        outline_content_map = {}
+        if self.outline and hasattr(self.outline, 'sections'):
+            for outline_section in self.outline.sections:
+                section_id = outline_section.get('id', '')
+                content = outline_section.get('content', '')
+                if isinstance(content, list):
+                    content = ' '.join(str(item) for item in content)
+                outline_content_map[section_id] = content
+        
         for section_data in self.enhanced_storyboard["sections"]:
             # 计算 section 时长（秒）
             duration_seconds = section_data.get("duration_seconds", 60)
@@ -401,6 +419,10 @@ class TeachingVideoAgent:
                 except:
                     duration_seconds = 60
             
+            # 获取对应的 talk_script (content)
+            section_id = section_data["id"]
+            talk_script = outline_content_map.get(section_id, "")
+            
             section = Section(
                 id=section_data["id"],
                 title=section_data["title"],
@@ -409,6 +431,7 @@ class TeachingVideoAgent:
                 start_time=section_data.get("start_time", "00:00"),
                 end_time=section_data.get("end_time", "01:00"),
                 duration_seconds=duration_seconds if duration_seconds else 60,
+                talk_script=talk_script,
             )
             self.sections.append(section)
 
