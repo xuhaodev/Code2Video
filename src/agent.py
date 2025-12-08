@@ -59,7 +59,10 @@ class VideoFeedback:
 class RunConfig:
     use_feedback: bool = False
     use_assets: bool = False
-    api: Callable = None
+    api: Callable = None  # 默认 API（用于 Stage 4 等其他阶段）
+    api_stage1: Callable = None  # Stage 1 (Outline) 使用的 API
+    api_stage2: Callable = None  # Stage 2 (Storyboard) 使用的 API
+    api_stage3: Callable = None  # Stage 3 (Code Generation) 使用的 API
     feedback_rounds: int = 2
     iconfinder_api_key: str = ""
     max_code_token_length: int = 10000
@@ -86,7 +89,10 @@ class TeachingVideoAgent:
 
         self.use_feedback = cfg.use_feedback
         self.use_assets = cfg.use_assets
-        self.API = cfg.api
+        self.API = cfg.api  # 默认 API
+        self.API_STAGE1 = cfg.api_stage1 or cfg.api  # Stage 1 API，未指定则用默认
+        self.API_STAGE2 = cfg.api_stage2 or cfg.api  # Stage 2 API，未指定则用默认
+        self.API_STAGE3 = cfg.api_stage3 or cfg.api  # Stage 3 API，未指定则用默认
         self.feedback_rounds = cfg.feedback_rounds
         self.iconfinder_api_key = cfg.iconfinder_api_key
         self.max_code_token_length = cfg.max_code_token_length
@@ -156,13 +162,20 @@ class TeachingVideoAgent:
         # Fallback to string conversion
         return str(response)
 
-    def _request_api_and_track_tokens(self, prompt, max_tokens=10000):
-        """packages API requests and automatically accumulates token usage"""
+    def _request_api_and_track_tokens(self, prompt, max_tokens=10000, api_override=None):
+        """packages API requests and automatically accumulates token usage
+        
+        Args:
+            prompt: 请求的 prompt
+            max_tokens: 最大 token 数
+            api_override: 可选，覆盖默认 API（用于不同阶段使用不同模型）
+        """
+        api_func = api_override or self.API
         # gpt-51 uses max_completion_tokens instead of max_tokens
-        if self.API == request_gpt51_token:
-            response, usage = self.API(prompt, max_completion_tokens=max_tokens)
+        if api_func == request_gpt51_token:
+            response, usage = api_func(prompt, max_completion_tokens=max_tokens)
         else:
-            response, usage = self.API(prompt, max_tokens=max_tokens)
+            response, usage = api_func(prompt, max_tokens=max_tokens)
         if usage:
             self.token_usage["prompt_tokens"] += usage.get("prompt_tokens", 0)
             self.token_usage["completion_tokens"] += usage.get("completion_tokens", 0)
@@ -249,8 +262,8 @@ class TeachingVideoAgent:
             print(f"📝 Generating Outline...")
 
             for attempt in range(1, self.max_regenerate_tries + 1):
-                api_func = self._request_api_and_track_tokens if refer_img_path else self._request_api_and_track_tokens
-                response = api_func(prompt1, max_tokens=self.max_code_token_length)
+                # Stage 1: 使用 API_STAGE1
+                response = self._request_api_and_track_tokens(prompt1, max_tokens=self.max_code_token_length, api_override=self.API_STAGE1)
                 if response is None:
                     print(f"⚠️ Attempt {attempt} failed, retrying...")
                     if attempt == self.max_regenerate_tries:
@@ -362,8 +375,8 @@ class TeachingVideoAgent:
             )
 
             for attempt in range(1, self.max_regenerate_tries + 1):
-                api_func = self._request_api_and_track_tokens
-                response = api_func(prompt2, max_tokens=self.max_code_token_length)
+                # Stage 2: 使用 API_STAGE2
+                response = self._request_api_and_track_tokens(prompt2, max_tokens=self.max_code_token_length, api_override=self.API_STAGE2)
                 if response is None:
                     print(f"⚠️ Outline format invalid on attempt {attempt}, retrying...")
                     if attempt == self.max_regenerate_tries:
@@ -494,7 +507,8 @@ class TeachingVideoAgent:
         else:
             code_gen_prompt = get_prompt3_code(regenerate_note=regenerate_note, section=section, base_class=base_class)
 
-        response = self._request_api_and_track_tokens(code_gen_prompt, max_tokens=self.max_code_token_length)
+        # Stage 3: 使用 API_STAGE3
+        response = self._request_api_and_track_tokens(code_gen_prompt, max_tokens=self.max_code_token_length, api_override=self.API_STAGE3)
         if response is None:
             print(f"❌ Failed to generate code for {section.id} via API call.")
             return ""
@@ -1051,6 +1065,17 @@ def build_and_parse_args():
     parser.add_argument("--landscape", action="store_false", dest="portrait", help="横屏模式 (16:9 比例)")
     parser.add_argument("--video_quality", type=str, default="l", choices=["l", "m", "h", "k"],
                         help="视频质量: l(低480p), m(中720p), h(高1080p), k(4K)")
+    
+    # 分阶段模型配置
+    parser.add_argument("--api_stage1", type=str, default=None,
+                        choices=["gpt-41", "claude", "gpt-5", "gpt-51", "gpt-4o", "gpt-o4mini", "Gemini"],
+                        help="Stage 1 (Outline) 使用的模型，默认与 --API 相同")
+    parser.add_argument("--api_stage2", type=str, default=None,
+                        choices=["gpt-41", "claude", "gpt-5", "gpt-51", "gpt-4o", "gpt-o4mini", "Gemini"],
+                        help="Stage 2 (Storyboard) 使用的模型，默认与 --API 相同")
+    parser.add_argument("--api_stage3", type=str, default=None,
+                        choices=["gpt-41", "claude", "gpt-5", "gpt-51", "gpt-4o", "gpt-o4mini", "Gemini"],
+                        help="Stage 3 (Code Generation) 使用的模型，默认与 --API 相同")
 
     return parser.parse_args()
 
@@ -1086,8 +1111,16 @@ if __name__ == "__main__":
     else:
         raise ValueError("Must provide --knowledge_point | --knowledge_file")
 
+    # 解析各阶段的 API
+    api_stage1 = get_api_and_output(args.api_stage1)[0] if args.api_stage1 else None
+    api_stage2 = get_api_and_output(args.api_stage2)[0] if args.api_stage2 else None
+    api_stage3 = get_api_and_output(args.api_stage3)[0] if args.api_stage3 else None
+
     cfg = RunConfig(
         api=api,
+        api_stage1=api_stage1,
+        api_stage2=api_stage2,
+        api_stage3=api_stage3,
         iconfinder_api_key=args.iconfinder_api_key,
         use_feedback=args.use_feedback,
         use_assets=args.use_assets,
@@ -1104,6 +1137,15 @@ if __name__ == "__main__":
     print(f"📱 视频模式: {'竖屏 (9:16)' if args.portrait else '横屏 (16:9)'}")
     quality_names = {'l': '480p', 'm': '720p', 'h': '1080p', 'k': '4K'}
     print(f"🎬 视频质量: {quality_names[args.video_quality]}")
+    
+    # 打印各阶段使用的模型
+    stage1_name = args.api_stage1 or args.API
+    stage2_name = args.api_stage2 or args.API
+    stage3_name = args.api_stage3 or args.API
+    print(f"🤖 Stage 1 (Outline) 模型: {stage1_name}")
+    print(f"🤖 Stage 2 (Storyboard) 模型: {stage2_name}")
+    print(f"🤖 Stage 3 (Code) 模型: {stage3_name}")
+    print(f"🤖 其他阶段 模型: {args.API}")
 
     run_Code2Video(
         knowledge_points,
